@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "Speaking Tracker",
+    "slug": "speaking-tracker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0F0F1A"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tharun135.speakingtracker"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0F0F1A"
+      },
+      "package": "com.tharun135.speakingtracker",
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#6C63FF",
+          "sounds": []
+        }
+      ],
+      "@react-native-community/datetimepicker"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "fd82af1d-b106-414d-86b3-75af5e6d6707"
+      }
+    }
+  }
+}
