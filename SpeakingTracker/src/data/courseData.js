@@ -10,7 +10,7 @@ export const PHASES = [
       'Install Node.js (v18+) from nodejs.org',
       'Install VS Code with React Native extension',
       'Run: npm install -g expo-cli',
-      'Run: npx create-expo-app SpeakingTracker',
+      'Run: npx create-expo-app EchoLab',
       'Install Expo Go on your phone (App Store / Play Store)',
       'Run: npx expo start and scan the QR code',
     ],

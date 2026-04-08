@@ -198,7 +198,7 @@ export default function VoiceLabScreen({ profile }) {
       
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <Text style={styles.header}>AI Voice Lab</Text>
+          <Text style={styles.header}>Echo Lab</Text>
           
           <View style={styles.row}>
             <LabCard emoji="🗣️" title="Shadowing" onPress={() => loadExercises('shadowing')} />

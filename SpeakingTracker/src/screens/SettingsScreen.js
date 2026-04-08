@@ -55,7 +55,7 @@ export default function SettingsScreen({ profile }) {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: "🎙️ Speaking time!",
-          body: "Your daily 2-minute practice is ready. Open the tracker.",
+          body: "Keep your streak alive—time for your 2-minute session in Echo Lab.",
           sound: true,
           priority: Notifications.AndroidImportance.MAX,
         },

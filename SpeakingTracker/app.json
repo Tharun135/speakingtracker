@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Speaking Tracker",
-    "slug": "speaking-tracker",
+    "name": "Echo Lab",
+    "slug": "echo-lab",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,14 +14,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tharun135.speakingtracker"
+      "bundleIdentifier": "com.tharun135.echolab"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0F0F1A"
       },
-      "package": "com.tharun135.speakingtracker",
+      "package": "com.tharun135.echolab",
       "edgeToEdgeEnabled": true
     },
     "web": {
