@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, Alert, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Audio } from 'expo-av';
-import { getExerciseContent, analyzeRecording } from '../utils/gemini';
+import { getExerciseContent, analyzeRecording, startConversationSim, continueConversationSim } from '../utils/gemini';
 import { addXP, saveToJournal } from '../utils/storage';
 import { speak, stopSpeech } from '../utils/speech';
 
@@ -19,10 +19,18 @@ export default function VoiceLabScreen({ profile }) {
   const [isRecording, setIsRecording] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [scoreResult, setScoreResult] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   // Chat / Simulation State
   const [simActive, setSimActive] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [currentInput, setCurrentInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [simScenario, setSimScenario] = useState('Job Interview');
+  const [simRecording, setSimRecording] = useState(null);
+  const [isSimRecording, setIsSimRecording] = useState(false);
+
+
 
   useEffect(() => {
     return () => {
@@ -30,6 +38,19 @@ export default function VoiceLabScreen({ profile }) {
       if (recording) recording.stopAndUnloadAsync();
     };
   }, []);
+
+  const handlePlaySentence = () => {
+    if (isSpeaking) {
+      stopSpeech();
+      setIsSpeaking(false);
+      return;
+    }
+    const text = activeEx?.text || (activeEx?.pair ? activeEx.pair.join(' versus ') : '');
+    if (!text) return;
+    setIsSpeaking(true);
+    speak(text);
+    setTimeout(() => setIsSpeaking(false), text.length * 60 + 1000);
+  };
 
   const loadExercises = async (type) => {
     setLoading(true);
@@ -92,30 +113,62 @@ export default function VoiceLabScreen({ profile }) {
     setSimActive(true);
     setExercises([]);
     setScoreResult(null);
-    setCurrentType('roleplay'); // Tag it as roleplay
-    
-    // Get opening line from AI
-    const opening = await startConversationSim(scenario);
-    setMessages([
-      { role: 'model', text: opening }
-    ]);
-    setLoading(false);
+    setCurrentType('roleplay');
+    setSimScenario(scenario);
+    setMessages([]);
+    setCurrentInput('');
+    try {
+      const opening = await startConversationSim(scenario);
+      setMessages([{ role: 'model', text: opening }]);
+    } catch (e) {
+      setMessages([{ role: 'model', text: `Let's practice: ${scenario}! I'll start — tell me about yourself.` }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const sendMessage = async () => {
-    if (!currentInput.trim()) return;
-    
     const userMsg = currentInput.trim();
+    if (!userMsg) return;
     setCurrentInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
-    
+    const updatedMessages = [...messages, { role: 'user', text: userMsg }];
+    setMessages(updatedMessages);
     setIsTyping(true);
     try {
-      // Logic for continuing the conversation
-      const response = await getWritingCorrection(`Ignore that this is a writing tool, just reply naturally as the roleplay character to: ${userMsg}`);
-      setMessages(prev => [...prev, { role: 'model', text: response.corrected || "That's interesting! Tell me more." }]);
+      const reply = await continueConversationSim(simScenario, updatedMessages);
+      setMessages(prev => [...prev, { role: 'model', text: reply }]);
     } catch (e) {
-      setMessages(prev => [...prev, { role: 'model', text: "Sorry, I'm having trouble responding right now." }]);
+      setMessages(prev => [...prev, { role: 'model', text: "That's a great point! Tell me more." }]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const startSimRecording = async () => {
+    try {
+      const permission = await Audio.requestPermissionsAsync();
+      if (permission.status !== 'granted') { Alert.alert('Microphone permission required.'); return; }
+      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+      const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+      setSimRecording(recording);
+      setIsSimRecording(true);
+    } catch (e) { console.error(e); }
+  };
+
+  const stopSimRecording = async () => {
+    if (!simRecording) return;
+    setIsSimRecording(false);
+    try {
+      await simRecording.stopAndUnloadAsync();
+      const uri = simRecording.getURI();
+      setSimRecording(null);
+      setIsTyping(true);
+      const result = await analyzeRecording(uri);
+      if (result?.transcript) {
+        setCurrentInput(result.transcript);
+      }
+    } catch (e) {
+      console.error(e);
     } finally {
       setIsTyping(false);
     }
@@ -155,6 +208,10 @@ export default function VoiceLabScreen({ profile }) {
             <LabCard emoji="🎭" title="Roleplay" onPress={() => startSim('Job Interview')} />
             <LabCard emoji="🔊" title="Minimal" onPress={() => loadExercises('minimal_pairs')} />
           </View>
+          <View style={styles.row}>
+            <LabCard emoji="💡" title="Concepts" onPress={() => loadExercises('concepts')} />
+            <LabCard emoji="🧠" title="Fundamentals" onPress={() => loadExercises('fundamentals')} />
+          </View>
 
           {loading && <ActivityIndicator color="#6C63FF" style={{ marginTop: 30 }} />}
 
@@ -176,10 +233,12 @@ export default function VoiceLabScreen({ profile }) {
               {exercises.map((ex, i) => (
                 <TouchableOpacity key={i} style={styles.exCard} onPress={() => setActiveEx(ex)}>
                   <Text style={styles.exText}>
-                    {ex.text || (ex.pair ? `${ex.pair[0]} vs ${ex.pair[1]}` : 'Practice Exercise')}
+                    {ex.title ? ex.title : ex.text || (ex.pair ? `${ex.pair[0]} vs ${ex.pair[1]}` : 'Practice Exercise')}
                   </Text>
-                  {(ex.focusSound || ex.instruction) && (
-                    <Text style={styles.exSubText}>{ex.focusSound ? `Focus: ${ex.focusSound}` : ex.instruction}</Text>
+                  {(ex.focusSound || ex.instruction || (ex.title && ex.text)) && (
+                    <Text style={styles.exSubText} numberOfLines={2}>
+                      {ex.title ? ex.text : (ex.focusSound ? `Focus: ${ex.focusSound}` : ex.instruction)}
+                    </Text>
                   )}
                 </TouchableOpacity>
               ))}
@@ -190,14 +249,29 @@ export default function VoiceLabScreen({ profile }) {
           {activeEx && !simActive && (
             <View style={styles.activeArea}>
               <View style={styles.activeCard}>
-                <View style={styles.activeHeader}>
-                  <Text style={styles.activeBadge}>PRACTICE MODE</Text>
-                  <TouchableOpacity onPress={() => speak(activeEx.text || activeEx.pair.join(' '))}>
-                    <Text style={styles.speakIcon}>🔊</Text>
+                <View style={[styles.activeHeader, { justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }]}>
+                  <TouchableOpacity 
+                    onPress={() => { setActiveEx(null); setScoreResult(null); }}
+                    style={{ padding: 8, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 10 }}
+                  >
+                    <Text style={{ color: '#FFF', fontSize: 16 }}>⬅️ Back</Text>
                   </TouchableOpacity>
+                  <Text style={styles.activeBadge}>
+                    {currentType === 'roleplay' ? '🎭 ROLEPLAY MODE' : currentType === 'concepts' ? '💡 CONCEPT CLARIFICATION' : currentType === 'fundamentals' ? '🧠 LIFE FUNDAMENTALS' : '🗣️ PRACTISE MODE'}
+                  </Text>
                 </View>
-                <Text style={styles.activeText}>{activeEx.text || activeEx.pair?.join(' / ')}</Text>
-                <Text style={styles.instruction}>{activeEx.instruction || 'Listen carefully, then repeat.'}</Text>
+                {activeEx.title && <Text style={[styles.activeText, { fontSize: 24, marginBottom: 10, marginTop: 15 }]}>{activeEx.title}</Text>}
+                <Text style={[styles.activeText, activeEx.title && { fontSize: 20, fontWeight: '500' }]}>{activeEx.text || activeEx.pair?.join(' / ')}</Text>
+                <Text style={styles.instruction}>{activeEx.instruction || 'Listen carefully, then say it along.'}</Text>
+
+                {/* Big Play / Replay Button */}
+                <TouchableOpacity
+                  style={[styles.playAlongBtn, isSpeaking && styles.playAlongBtnActive]}
+                  onPress={handlePlaySentence}
+                >
+                  <Text style={styles.playAlongIcon}>{isSpeaking ? '🔊' : '▶️'}</Text>
+                  <Text style={styles.playAlongText}>{isSpeaking ? 'Playing... Say Along!' : 'Play & Shadow'}</Text>
+                </TouchableOpacity>
                 
                 {scoreResult && (
                   <View style={styles.scoreCard}>
@@ -268,6 +342,12 @@ export default function VoiceLabScreen({ profile }) {
                   onChangeText={setCurrentInput}
                   onSubmitEditing={sendMessage}
                 />
+                <TouchableOpacity
+                  onPress={isSimRecording ? stopSimRecording : startSimRecording}
+                  style={[styles.micBtn, isSimRecording && styles.micBtnActive]}
+                >
+                  <Text style={{ fontSize: 18 }}>{isSimRecording ? '⏹️' : '🎙️'}</Text>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={sendMessage} style={styles.sendBtn}>
                    <Text style={{ fontSize: 18 }}>🚀</Text>
                 </TouchableOpacity>
@@ -317,12 +397,20 @@ const styles = StyleSheet.create({
   closeIcon: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
 
   activeArea: { marginTop: 10 },
-  activeBadge: { color: '#6C63FF', fontSize: 10, fontWeight: '900', letterSpacing: 1 },
+  activeBadge: { color: '#6C63FF', fontSize: 11, fontWeight: '900', letterSpacing: 1 },
   activeCard: { backgroundColor: '#1A1A2E', padding: 24, borderRadius: 24, borderWidth: 1, borderColor: '#2A2A4A' },
   activeHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  speakIcon: { fontSize: 20 },
-  activeText: { fontSize: 22, fontWeight: '800', color: '#fff', textAlign: 'center', lineHeight: 32, marginBottom: 15 },
-  instruction: { color: '#6666AA', fontSize: 13, textAlign: 'center', fontStyle: 'italic', marginBottom: 30 },
+  speakIcon: { fontSize: 24 },
+  activeText: { fontSize: 28, fontWeight: '800', color: '#fff', textAlign: 'center', lineHeight: 42, marginBottom: 18 },
+  instruction: { color: '#6666AA', fontSize: 14, textAlign: 'center', fontStyle: 'italic', marginBottom: 24 },
+  playAlongBtn: {
+    backgroundColor: '#6C63FF', borderRadius: 20, paddingVertical: 18, paddingHorizontal: 24,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 28,
+    shadowColor: '#6C63FF', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.5, shadowRadius: 12, elevation: 8,
+  },
+  playAlongBtnActive: { backgroundColor: '#43C6AC' },
+  playAlongIcon: { fontSize: 26 },
+  playAlongText: { color: '#fff', fontWeight: '900', fontSize: 17 },
   
   scoreCard: { backgroundColor: '#0F0F1A', borderRadius: 20, padding: 20, marginBottom: 25, borderWidth: 1, borderColor: '#2A2A4A' },
   scoreRow: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 },
@@ -349,8 +437,10 @@ const styles = StyleSheet.create({
   modelBubble: { backgroundColor: '#1A1A2E', alignSelf: 'flex-start', borderBottomLeftRadius: 4, borderWidth: 1, borderColor: '#2A2A4A' },
   msgText: { fontSize: 14, lineHeight: 22, color: '#fff' },
 
-  inputArea: { flexDirection: 'row', gap: 10, marginBottom: 15 },
+  inputArea: { flexDirection: 'row', gap: 10, marginBottom: 15, alignItems: 'center' },
   textInput: { flex: 1, backgroundColor: '#1A1A2E', borderRadius: 15, paddingHorizontal: 15, paddingVertical: 12, color: '#fff', borderWidth: 1, borderColor: '#2A2A4A' },
+  micBtn: { backgroundColor: '#1A1A2E', width: 50, height: 50, borderRadius: 15, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: '#6C63FF' },
+  micBtnActive: { backgroundColor: '#FF658422', borderColor: '#FF6584' },
   sendBtn: { backgroundColor: '#6C63FF', width: 50, height: 50, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
 
   endSimBtn: { backgroundColor: '#1A1A2E', paddingVertical: 15, borderRadius: 20, alignItems: 'center', borderWidth: 1, borderColor: '#2A2A4A' },

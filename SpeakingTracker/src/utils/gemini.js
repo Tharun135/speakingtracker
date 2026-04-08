@@ -64,43 +64,381 @@ export async function getWritingCorrection(sentence) {
 export async function startConversationSim(scenario) {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const prompt = `[Expert Language Partner] Scenario: "${scenario}". Output ONLY a natural opening line.`;
+    const prompt = `[Expert Language Partner] You are roleplaying as the other person in a "${scenario}" scenario. Output ONLY a natural, concise opening line to start the conversation. Do not add any labels or explanations.`;
     const result = await model.generateContent(prompt);
-    return result.response.text();
-  } catch (e) { return `Hey! Ready to practice ${scenario}? Let's start.`; }
+    return result.response.text().trim();
+  } catch (e) { return `Let's practice: ${scenario}! Tell me about yourself to get started.`; }
 }
+
+export async function continueConversationSim(scenario, messages) {
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const history = messages.map(m => `${m.role === 'user' ? 'User' : 'You'}: ${m.text}`).join('\n');
+    const prompt = `[Expert Language Partner] You are the other person in a "${scenario}" roleplay. Here is the conversation so far:\n${history}\n\nContinue naturally as your character. Reply in 1-3 short sentences only. Do NOT add labels or explanations.`;
+    const result = await model.generateContent(prompt);
+    return result.response.text().trim();
+  } catch (e) { return "That's really interesting! Can you tell me more about that?"; }
+}
+
+const ALL_TONGUE_TWISTERS = [
+  // P sounds
+  { text: "Peter Piper picked a peck of pickled peppers.", focusSound: "p", instruction: "Say it 3 times fast — keep the 'p' popping." },
+  { text: "Paddy planted a pot of purple pansies by the pretty pink path.", focusSound: "p", instruction: "Notice every 'p' — don't let them blur together." },
+  // S / SH sounds
+  { text: "She sells seashells by the seashore.", focusSound: "s/sh", instruction: "Separate the 's' and 'sh' sounds clearly — don't blend them." },
+  { text: "Six slick slim sycamore saplings.", focusSound: "s/sl", instruction: "Slow down on 'sycamore' — it's three syllables." },
+  { text: "Silly Sally swiftly shooed seven silly sheep.", focusSound: "s/sh", instruction: "Keep the 's' sharp and the 'sh' smooth — they're different." },
+  { text: "She saw Sharif's shoes on the sofa. Are Sharif's shoes Swiss?", focusSound: "s/sh", instruction: "Switch between 's' and 'sh' without letting them merge." },
+  // W / WH sounds
+  { text: "How much wood would a woodchuck chuck if a woodchuck could chuck wood?", focusSound: "w/ch", instruction: "Steady rhythm — don't rush the 'ch' sounds." },
+  { text: "Whether the weather is warm, whether the weather is hot, we have to put up with the weather, whether we like it or not.", focusSound: "w/th", instruction: "The 'wh' and 'th' are different — keep them clean." },
+  { text: "Which witch wished which wicked wish?", focusSound: "w/wh", instruction: "Make the 'wh' breathy and distinct from hard 'w'." },
+  // R / L sounds
+  { text: "Red lorry, yellow lorry, red lorry, yellow lorry.", focusSound: "r/l", instruction: "Switch cleanly between 'r' and 'l' — don't merge them." },
+  { text: "Really leery, rarely Larry.", focusSound: "r/l", instruction: "The tongue position for 'r' and 'l' is completely different — feel it." },
+  { text: "Rory the warrior and Roger the worrier were reared wrongly in a rural brewery.", focusSound: "r", instruction: "Keep each 'r' distinct — don't flatten or drop it." },
+  // B / T sounds
+  { text: "Betty Botter bought some butter, but the butter Betty bought was bitter.", focusSound: "b/t", instruction: "Keep 'b' and 't' crisp — don't let the stops blur." },
+  { text: "A big black bug bit a big black bear and the big black bear bled blood.", focusSound: "b/bl", instruction: "Each 'b' should be a clean stop — no slurring." },
+  // TH sounds
+  { text: "Lesser leather never weathered wetter weather better.", focusSound: "th/w", instruction: "The 'th' in weather is voiced — tongue actually touches teeth." },
+  { text: "The thirty-three thieves thought that they thrilled the throne throughout Thursday.", focusSound: "th", instruction: "Voiced 'th' for 'the' and unvoiced 'th' for 'think' — they're different." },
+  { text: "Three free throws. Three free throws. Three free throws.", focusSound: "th/r", instruction: "Don't let 'three' become 'free' — keep the 'th' in front." },
+  // F / V sounds
+  { text: "Friendly Frank flips fine flapjacks.", focusSound: "f/fl", instruction: "The 'fl' blend needs both sounds — don't drop the 'l'." },
+  { text: "Five frantic frogs fled from fifty fierce fishes.", focusSound: "f/fr", instruction: "The 'fr' cluster must be crisp — air through top teeth on bottom lip." },
+  // K / G / Hard-C sounds
+  { text: "Can you can a can as a canner can a can?", focusSound: "k/c", instruction: "Each hard 'c' or 'k' should sound like a click." },
+  { text: "Greek grapes, Greek grapes, Greek grapes.", focusSound: "gr/k", instruction: "The 'gr' cluster — don't let 'Greek' become 'reek'." },
+  { text: "A skunk sat on a stump. The stump thunk the skunk stunk.", focusSound: "sk/st/nk", instruction: "The 'sk' and 'st' clusters need crisp stops — no blurring." },
+  // NY / N sounds
+  { text: "Unique New York, unique New York, you know you need unique New York.", focusSound: "ny/n", instruction: "Stress both syllables of 'unique' — don't rush it." },
+  { text: "No need to light a night-light on a light night like tonight.", focusSound: "n/l", instruction: "Feel the contrast between the nasal 'n' and the lateral 'l'." },
+  // CH / J sounds
+  { text: "Chester cheetah chews a chunk of cheap cheddar cheese.", focusSound: "ch", instruction: "Each 'ch' is a clean affricate — 't' + 'sh' together." },
+  { text: "Judge John judged justly.", focusSound: "j/dg", instruction: "The 'j' and 'dg' are the same sound — make them identical." },
+  // Mixed difficulty
+  { text: "I scream, you scream, we all scream for ice cream!", focusSound: "scr/cr", instruction: "The 'scr' cluster — don't drop the 's' at the start." },
+  { text: "Fuzzy Wuzzy was a bear, Fuzzy Wuzzy had no hair. Fuzzy Wuzzy wasn't very fuzzy, was he?", focusSound: "f/w/z", instruction: "The 'z' in fuzzy should buzz — make it vibrate." },
+  { text: "I thought I thought of thinking of thanking you.", focusSound: "th/ng", instruction: "Three different 'th' contexts — stay consistent." },
+  { text: "If two witches would watch two watches, which witch would watch which watch?", focusSound: "w/wh/ch", instruction: "Four different sound clusters — don't let them bleed together." },
+  // Advanced
+  { text: "The seething sea ceaseth and thus the seething sea sufficeth us.", focusSound: "s/th/ea", instruction: "Slow and steady — every consonant cluster must be articulated." },
+  { text: "Brisk brave brigadiers brandished broad bright blades, blunderbusses, and bludgeons.", focusSound: "br/bl", instruction: "The 'br' and 'bl' blends are different — feel your lips." },
+  { text: "Imagine an imaginary menagerie manager managing an imaginary menagerie.", focusSound: "m/zh", instruction: "The French-origin 'zh' in 'menagerie' is rare in English — soft 'zh' not 'j'." },
+  { text: "Near an ear, a nearer ear, a nearly ethereal ear.", focusSound: "n/r/ear", instruction: "The 'ear' vowel is consistent — don't let it drift to 'air'." },
+  { text: "Swan swam over the sea. Swim, swan, swim! Swan swam back again. Well swum swan!", focusSound: "sw/wm", instruction: "The 'sw' blend with the nasal 'wm' ending — keep them distinct." },
+  { text: "Bobby brings bright brass rings. Bring Bobby bright brass rings.", focusSound: "br/ng", instruction: "Clear 'ng' at the end of 'bring' and 'rings' — tongue against soft palate." },
+  { text: "The big black-backed bumblebee.", focusSound: "b/bl/mb", instruction: "Three 'b' variants in one — initial, blended, and silent 'mb'." },
+  { text: "Which wristwatches are Swiss wristwatches?", focusSound: "wr/sw/ch", instruction: "The 'wr' is silent — 'wrist' starts with 'r'. Don't add a 'w' sound." },
+  { text: "Many mumbling mice are making midnight music in the moonlight.", focusSound: "m", instruction: "Every word starts with 'm' — keep each fresh and not mumbled." },
+  { text: "Through three cheese trees three free fleas flew.", focusSound: "th/fr/fl", instruction: "Three different blends back to back — plan each syllable." },
+];
+
+
+const shuffle = (array) => {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+};
+
+const ALL_CONCEPTS = [
+  "Hydroponics vs Aquaponics", "Organic farming vs Natural farming", "Greenhouse vs Polyhouse", "Weather vs Climate", "Renewable energy vs Non-renewable energy", "Biodegradable vs Compostable", "Virus vs Bacteria", "Gene vs DNA", "Solar power vs Solar thermal", "Electric vehicle vs Hybrid vehicle",
+  "AI vs Machine Learning", "Machine Learning vs Deep Learning", "Cloud computing vs Edge computing", "Internet vs World Wide Web", "Data vs Information", "Database vs Data warehouse", "API vs SDK", "Frontend vs Backend", "Encryption vs Hashing", "Blockchain vs Cryptocurrency",
+  "Revenue vs Profit", "Income vs Wealth", "Assets vs Liabilities", "Inflation vs Recession", "GDP vs GNP", "Saving vs Investing", "Stocks vs Mutual Funds", "Interest vs Compound Interest", "Budget deficit vs Fiscal deficit", "Tax avoidance vs Tax evasion",
+  "Startup vs Small business", "Freelancer vs Consultant", "Leader vs Manager", "Strategy vs Tactics", "Product vs Project", "Efficiency vs Effectiveness", "Vision vs Mission",
+  "Calories vs Nutrients", "Fat vs Cholesterol", "Bacteria vs Infection", "Allergy vs Intolerance", "BMI vs Body fat", "Mental health vs Mental illness",
+  "Fact vs Opinion", "Correlation vs Causation", "Ethics vs Morality", "Culture vs Tradition",  "Religion vs Spirituality", "Equality vs Equity", "Knowledge vs Wisdom"
+];
+
+const ALL_FUNDAMENTALS = [
+  "How do you calculate percentage quickly?", "How do you calculate compound interest?", "How do you calculate CAGR?", "How do you calculate loan EMI?", "How do you calculate probability?", "How do you calculate growth rate?", "How do you convert fractions to percentages?", "How do you calculate average?", "How do you calculate standard deviation?", "How do you estimate numbers mentally?",
+  "What is inflation?", "How does compounding work in investments?", "What is mutual fund NAV?", "What is SIP?", "What is ETF?", "What is diversification?", "What is risk vs return?", "What is a credit score?", "What is an emergency fund?", "How much should you save monthly?",
+  "What are the symptoms of heart attack?", "What are stroke warning signs?", "What is normal blood pressure?", "What is BMI?", "What causes diabetes?", "How does insulin work?", "What are antibiotics?", "What is immunity?", "What is dehydration?", "What is CPR?",
+  "What is an operating system?", "What is RAM?", "What is CPU?", "What is GPU?", "What is cloud computing?", "What is blockchain?", "What is encryption?", "What is API?", "What is machine learning?", "What is cybersecurity?",
+  "What causes gravity?", "What is energy?", "What is entropy?", "What is evolution?", "What is DNA?", "What is photosynthesis?", "What causes earthquakes?", "What causes climate change?", "What is nuclear energy?", "How does electricity work?",
+  "What is GDP?", "What is recession?", "What is supply and demand?", "What is capitalism?", "What is socialism?", "What is taxation?", "What is government debt?", "What is public policy?", "What is globalization?",
+  "What is motivation?", "What is habit formation?", "What is cognitive bias?", "What is emotional intelligence?", "What is decision fatigue?", "What is dopamine?", "What is procrastination?", "What is social influence?", "What is stress response?", "What is resilience?",
+  "What is logical fallacy?", "What is correlation vs causation?", "What is Bayesian thinking?", "What is probability thinking?", "What is risk analysis?", "What is scientific method?", "What is evidence-based reasoning?", "What is skepticism?", "What is falsifiability?", "What is rational thinking?",
+  "What is deep work?", "What is time blocking?", "What is skill stacking?", "What is career capital?", "What is leverage?", "What is automation?", "What is productivity system?", "What is deliberate practice?", "What is learning curve?", "What is burnout?",
+  "How does electricity billing work?", "How does insurance work?", "How does credit card interest work?", "How to read a contract?", "How to negotiate salary?", "How to plan a budget?", "How to make long-term decisions?", "How to evaluate risk?", "How to detect scams?"
+];
 
 const FALLBACK_EXERCISES = {
   shadowing: [
     { text: "Despite the growing complexity of modern technology, many people find that a simple, disciplined approach to daily learning yields the most significant long-term results.", instruction: "Focus on the natural pause after 'technology' and the upward intonation on 'disciplined'." },
-    { text: "If we consider the impact of sustainable energy on future urban planning, it becomes clear that early investment in green infrastructure is absolutely critical for the next generation.", instruction: "Practice the rhythmic flow of the entire complex sentence without pausing in the middle." }
+    { text: "If we consider the impact of sustainable energy on future urban planning, it becomes clear that early investment in green infrastructure is absolutely critical for the next generation.", instruction: "Practice the rhythmic flow of the entire complex sentence without pausing in the middle." },
+    { text: "The way we communicate has changed dramatically over the past decade, and adapting to new platforms while maintaining genuine human connection remains one of our greatest challenges.", instruction: "Emphasise 'genuine human connection' — it's the emotional core of the sentence." },
   ],
-  tongue_twisters: [
-    { text: "Peter Piper picked a peck of pickled peppers.", focusSound: "p", instruction: "Repeat quickly 3 times." },
-    { text: "She sells seashells by the seashore.", focusSound: "s", instruction: "Enunciate the 's' and 'sh' clearly." }
-  ],
+  concepts: () => shuffle(ALL_CONCEPTS).slice(0, 3).map(concept => {
+    const detailed = {
+      "Hydroponics vs Aquaponics": "Hydroponics grows plants in nutrient-rich water. Aquaponics adds fish farming, where fish waste provides the nutrients.",
+      "Organic farming vs Natural farming": "Organic farming allows approved organic fertilizers. Natural farming relies solely on the local ecosystem without external inputs.",
+      "Greenhouse vs Polyhouse": "A greenhouse uses glass for temperature control. A polyhouse is a cheaper type of greenhouse made of polyethylene film.",
+      "Weather vs Climate": "Weather is the short-term condition on a given day. Climate is the long-term average weather pattern over decades.",
+      "Renewable energy vs Non-renewable energy": "Renewable energy comes from replenishing sources like the sun. Non-renewable energy like coal depletes and cannot be replaced.",
+      "Biodegradable vs Compostable": "Biodegradable items eventually break down in nature. Compostable items break down quickly under specific conditions and enrich the soil.",
+      "Virus vs Bacteria": "Bacteria are single-celled living organisms that reproduce independently. Viruses are infectious agents that need a host cell to multiply.",
+      "Gene vs DNA": "DNA is the long molecule carrying genetic instructions. A gene is a specific, small section of that DNA responsible for a trait.",
+      "Solar power vs Solar thermal": "Solar power uses panels to convert sunlight directly into electricity. Solar thermal uses sunlight to heat fluids for energy.",
+      "Electric vehicle vs Hybrid vehicle": "Electric vehicles run 100% on battery power. Hybrids have both a battery and a traditional gas engine.",
+      "AI vs Machine Learning": "AI is the broad concept of machines simulating human intelligence. Machine learning is the subset where machines learn from data without explicit programming.",
+      "Machine Learning vs Deep Learning": "Machine learning uses algorithms to parse data. Deep learning uses complex multi-layered neural networks mimicking the human brain.",
+      "Cloud computing vs Edge computing": "Cloud computing processes data in a centralized data center. Edge computing processes data locally, near where it was generated.",
+      "Internet vs World Wide Web": "The Internet is the massive network of connected computers. The Web is the collection of web pages you access on that network.",
+      "Data vs Information": "Data refers to raw, unorganized facts and figures. Information is data that has been processed and made meaningful.",
+      "Database vs Data warehouse": "A database handles day-to-day transaction processing. A data warehouse stores historical data specifically for analysis and reporting.",
+      "API vs SDK": "An API is a bridge letting two apps communicate. An SDK is a full toolbox containing APIs and tools to build apps.",
+      "Frontend vs Backend": "Frontend is the visible part of an app users interact with. Backend is the hidden server and database powering it.",
+      "Encryption vs Hashing": "Encryption is a two-way function that can be decrypted. Hashing is a one-way function used primarily to verify data integrity.",
+      "Blockchain vs Cryptocurrency": "Blockchain is the underlying distributed ledger technology. Cryptocurrency is a digital token that uses blockchain to function securely.",
+      "Revenue vs Profit": "Revenue is all the money brought in by a business. Profit is what remains after subtracting all expenses.",
+      "Income vs Wealth": "Income is the money you earn over a specific period. Wealth is the total net value of everything you own minus your debts.",
+      "Assets vs Liabilities": "Assets are things you own that put money in your pocket. Liabilities are things you owe that take money out of your pocket.",
+      "Inflation vs Recession": "Inflation is when prices broadly rise, reducing purchasing power. A recession is a significant decline in overall economic activity.",
+      "GDP vs GNP": "GDP measures all production within a country's borders. GNP measures all production by a country's citizens, regardless of location.",
+      "Saving vs Investing": "Saving keeps money safe in cash for short-term goals. Investing puts money into assets to grow value over the long term.",
+      "Stocks vs Mutual Funds": "A stock represents ownership in one specific company. A mutual fund pools money to buy a diversified basket of many stocks.",
+      "Interest vs Compound Interest": "Interest is earned purely on the original principal. Compound interest earns interest on the principal AND the previously earned interest.",
+      "Budget deficit vs Fiscal deficit": "A budget deficit is when planned spending exceeds planned revenue. A fiscal deficit includes the total borrowing need of the government.",
+      "Tax avoidance vs Tax evasion": "Tax avoidance is legally minimizing your tax bill using deductions. Tax evasion is illegally hiding income and lying to authorities.",
+      "Startup vs Small business": "A startup is designed to scale rapidly and disrupt a large market. A small business aims for steady, stable local profitability.",
+      "Freelancer vs Consultant": "A freelancer executes specific tasks or deliverables. A consultant provides expert advice and strategic guidance on how to do things.",
+      "Leader vs Manager": "A manager organizes people to accomplish a task. A leader inspires and motivates people to share a broader vision.",
+      "Strategy vs Tactics": "Strategy is the overarching long-term plan to achieve a goal. Tactics are the specific, short-term actions taken to execute that strategy.",
+      "Product vs Project": "A product is a continuous creation answering a user need. A project has a strict timeline with a defined beginning and end.",
+      "Efficiency vs Effectiveness": "Efficiency is doing things right with minimal waste. Effectiveness is doing the right things to achieve the best outcome.",
+      "Vision vs Mission": "A vision statement describes the future desired state. A mission statement describes what the organization is actively doing today.",
+      "Calories vs Nutrients": "Calories measure the energy a food provides. Nutrients are the vitamins and minerals the body needs to function properly.",
+      "Fat vs Cholesterol": "Dietary fat is an energy source found in food. Cholesterol is a waxy substance made by your liver, essential for cells.",
+      "Bacteria vs Infection": "Bacteria are microscopic organisms everywhere around us. An infection occurs when harmful bacteria or viruses multiply and cause illness.",
+      "Allergy vs Intolerance": "An allergy triggers the immune system, which can be life-threatening. An intolerance is a digestive issue that causes discomfort.",
+      "BMI vs Body fat": "BMI is a calculation based solely on height and weight. Body fat percentage measures the actual proportion of fat tissue in the body.",
+      "Mental health vs Mental illness": "Mental health refers to overall emotional well-being. A mental illness is a diagnosable condition affecting thinking or behavior.",
+      "Fact vs Opinion": "A fact is a statement that can be proven true or false. An opinion expresses a personal belief, feeling, or viewpoint.",
+      "Correlation vs Causation": "Correlation means two things happen at the same time. Causation means one thing definitively forced the other to happen.",
+      "Ethics vs Morality": "Ethics are societal or professional rules of conduct. Morality refers to a person's individual, internal sense of right and wrong.",
+      "Culture vs Tradition": "Culture is the overarching way of life of a group. Traditions are specific practices handed down from generation to generation.",
+      "Religion vs Spirituality": "Religion is an organized system of beliefs and rituals. Spirituality is a personal, independent search for meaning and connection.",
+      "Equality vs Equity": "Equality gives everyone the exact same resources. Equity distributes resources based on individual needs to reach equal outcomes.",
+      "Knowledge vs Wisdom": "Knowledge is gathering facts, information, and skills. Wisdom is knowing how and when to appropriately apply that knowledge."
+    };
+    return {
+      title: concept,
+      text: detailed[concept] || `Can you explain the difference between the two parts of ${concept}? Try verbalizing it out loud in 2 or 3 clear sentences.`,
+      instruction: "Focus on pronouncing the keywords clearly while explaining."
+    };
+  }),
+  fundamentals: () => shuffle(ALL_FUNDAMENTALS).slice(0, 3).map(q => {
+    const answers = {
+      "How do you calculate percentage quickly?": "Move the decimal place to find 10% or 1%, then multiply. Example: 10% of 250 is 25.",
+      "How do you calculate compound interest?": "Interest is earned on both the original money and the accumulated interest. Formula: A = P(1+r/n)^(nt).",
+      "How do you calculate CAGR?": "Divide the ending value by the beginning value, raise to the power of (1/years), and subtract 1.",
+      "How do you calculate loan EMI?": "EMI combines principal repayment and interest on the remaining balance using an amortization formula.",
+      "How do you calculate probability?": "Divide the number of specific desired outcomes by the total number of possible outcomes.",
+      "How do you calculate growth rate?": "Subtract the old value from the new value, divide by the old value, and multiply by 100.",
+      "How do you convert fractions to percentages?": "Divide the top number by the bottom number, then multiply the result by 100.",
+      "How do you calculate average?": "Add all the numbers together, then divide by how many numbers there are.",
+      "How do you calculate standard deviation?": "Find the variance (average of squared differences from the Mean), then take its square root. It measures data spread.",
+      "How do you estimate numbers mentally?": "Round numbers to the nearest 10 or 100 before performing operations to get a highly accurate ballpark figure getting.",
+      "What is inflation?": "Inflation is the gradual loss of purchasing power as the general prices of goods and services rise.",
+      "How does compounding work in investments?": "Your returns generate their own returns, creating an exponential snowball effect over time.",
+      "What is mutual fund NAV?": "Net Asset Value is the price per share of a mutual fund, calculated by dividing total assets by shares outstanding.",
+      "What is SIP?": "A Systematic Investment Plan automatically invests a fixed amount of money at regular intervals.",
+      "What is ETF?": "An Exchange-Traded Fund is a basket of securities that trades on an exchange just like a stock.",
+      "What is diversification?": "Spreading your money across different investments to reduce overall risk.",
+      "What is risk vs return?": "The principle that potential return rises with an increase in risk.",
+      "What is a credit score?": "A 3-digit number representing your creditworthiness, based on your history of borrowing and repaying debt.",
+      "What is an emergency fund?": "Cash reserves set aside strictly for unplanned expenses or financial emergencies, typically 3-6 months' expenses.",
+      "How much should you save monthly?": "The popular 50/30/20 rule suggests saving and investing at least 20% of your after-tax income.",
+      "What are the symptoms of heart attack?": "Chest discomfort, shortness of breath, and pain radiating to the left arm or jaw.",
+      "What are stroke warning signs?": "Face drooping, arm weakness, and speech difficulty (FAST acronym).",
+      "What is normal blood pressure?": "A normal reading is typically around 120/80 mmHg.",
+      "What is BMI?": "Body Mass Index estimates body fat based on height and weight. Normal range is 18.5 to 24.9.",
+      "What causes diabetes?": "Type 1 is autoimmune; Type 2 is caused by insulin resistance often linked to lifestyle factors.",
+      "How does insulin work?": "It acts as a key to let glucose from the food you eat enter your body's cells for energy.",
+      "What are antibiotics?": "Medicines that destroy or slow down the growth of bacteria, but are useless against viruses.",
+      "What is immunity?": "The body's ability to resist or fight off an infectious disease using antibodies and white blood cells.",
+      "What is dehydration?": "A dangerous condition where your body loses more fluids than it takes in.",
+      "What is CPR?": "Cardiopulmonary Resuscitation uses chest compressions to mimic how the heart pumps blood.",
+      "What is an operating system?": "The master software that runs the computer and manages hardware, like Windows or macOS.",
+      "What is RAM?": "Random Access Memory is short-term, blazing-fast memory for active tasks, erased when the PC turns off.",
+      "What is CPU?": "The Central Processing Unit is the main brain of the computer that executes instructions.",
+      "What is GPU?": "The Graphics Processing Unit specialized in rendering images and handling parallel processing like AI.",
+      "What is cloud computing?": "Using remote servers on the internet to store, manage, and process data rather than a local hard drive.",
+      "What is blockchain?": "A secure, decentralized, unchangeable digital ledger recording transactions across a network.",
+      "What is encryption?": "Scrambling data into a secret code that can only be unlocked with the correct decryption key.",
+      "What is API?": "An Application Programming Interface acts as a messenger letting two different software programs talk.",
+      "What is machine learning?": "A method of data analysis that automates analytical model building, allowing computers to learn from data.",
+      "What is cybersecurity?": "The practice of defending computers, servers, and networks from malicious digital attacks.",
+      "What causes gravity?": "According to Einstein, mass actually bends the fabric of spacetime, pulling objects toward it.",
+      "What is energy?": "The quantitative property that must be transferred to an object to perform work on, or to heat it.",
+      "What is entropy?": "A measure of disorder or randomness in a closed system, which constantly increases over time.",
+      "What is evolution?": "The process by which different kinds of living organisms develop and diversify from earlier forms.",
+      "What is DNA?": "Deoxyribonucleic acid is the molecule carrying all electrical and genetic instructions for life.",
+      "What is photosynthesis?": "The process by which green plants use sunlight to synthesize nutrients from carbon dioxide and water.",
+      "What causes earthquakes?": "A sudden release of energy in the Earth's lithosphere that creates seismic waves, usually from tectonic plates slipping.",
+      "What causes climate change?": "The long-term heating of Earth's climate system, driven fundamentally by human fossil fuel emissions.",
+      "What is nuclear energy?": "Energy released during nuclear fission or fusion, typically used to generate massive amounts of electricity.",
+      "How does electricity work?": "The flow of electrical power or charge, generated by moving electrons.",
+      "What is GDP?": "Gross Domestic Product is the total monetary value of all goods and services produced in a country.",
+      "What is recession?": "A significant, widespread, and prolonged downturn in economic activity.",
+      "What is supply and demand?": "An economic model showing how the price of something is determined by its availability and people's desire for it.",
+      "What is capitalism?": "An economic system where trade and industry are controlled by private owners for profit.",
+      "What is socialism?": "A system where the means of production, distribution, and exchange are owned or regulated by the community.",
+      "What is taxation?": "The compulsory collection of money by a government to fund public services and institutions.",
+      "What is government debt?": "The total amount of money owed by a country's national government to its creditors.",
+      "What is public policy?": "Laws, guidelines, and actions implemented by governments to handle real-world problems.",
+      "What is globalization?": "The growing interconnectedness of the world's economies, cultures, and populations.",
+      "What is motivation?": "The psychological driving force that initiates, guides, and maintains goal-oriented behaviors.",
+      "What is habit formation?": "The neurological loop of a cue, a routine, and a reward that makes a behavior automatic.",
+      "What is cognitive bias?": "A systematic error in thinking that affects the decisions and judgments that people make.",
+      "What is emotional intelligence?": "The ability to understand, use, and manage your own emotions in positive ways.",
+      "What is decision fatigue?": "The deteriorating quality of decisions made by an individual after a long session of decision making.",
+      "What is dopamine?": "A neurotransmitter that plays a major role in the brain's reward-motivated behavior system.",
+      "What is procrastination?": "The act of delaying or postponing a task, often out of anxiety or lack of immediate reward.",
+      "What is social influence?": "The way in which individuals change their behavior to meet the demands of a social environment.",
+      "What is stress response?": "The body's 'fight-or-flight' hormonal reaction to a perceived physical or psychological threat.",
+      "What is resilience?": "The psychological capacity to adapt effectively and recover quickly from adversity or trauma.",
+      "What is logical fallacy?": "An error in reasoning that renders an argument invalid or structurally flawed.",
+      "What is correlation vs causation?": "Correlation means two things happen together; causation means one actively forced the other.",
+      "What is Bayesian thinking?": "Continuously updating your probability or beliefs based on the arrival of new evidence.",
+      "What is probability thinking?": "Estimating, using math or logic, the likelihood of an event happening rather than certainty.",
+      "What is risk analysis?": "Reviewing the potential risks involved in a projected activity or decision to minimize harm.",
+      "What is scientific method?": "The process of observing, hypothesizing, experimenting, analyzing data, and drawing conclusions.",
+      "What is evidence-based reasoning?": "Making decisions based on objective, quantifiable facts rather than intuition or belief.",
+      "What is skepticism?": "A questioning attitude towards unempirical knowledge or opinions stated as facts.",
+      "What is falsifiability?": "The capacity for some proposition, statement, or theory to be proven false by observation.",
+      "What is rational thinking?": "Thinking based on clear reason, logic, and factual evidence.",
+      "What is deep work?": "The ability to focus without distraction on a cognitively demanding task for long stretches.",
+      "What is time blocking?": "Allocating specific time windows for specific tasks or categories of tasks in advance.",
+      "What is skill stacking?": "Combining multiple ordinary skills to create an extraordinary and highly rare competitive advantage.",
+      "What is career capital?": "The rare and valuable skills you have built up over your career that give you leverage.",
+      "What is leverage?": "Using a small amount of effort, money, or technology to produce a massive disproportionate outcome.",
+      "What is automation?": "Using technology or systems to accomplish a task with minimal human intervention.",
+      "What is productivity system?": "A structured workflow or set of rules designed to help manage time and tasks efficiently.",
+      "What is deliberate practice?": "Highly structured practice aimed specifically at addressing weaknesses and improving performance.",
+      "What is learning curve?": "The rate of a person's progress in gaining experience or new skills.",
+      "What is burnout?": "A state of emotional, physical, and mental exhaustion caused by excessive and prolonged stress.",
+      "How does electricity billing work?": "You are billed mathematically based on the number of Kilowatt-hours (kWh) of power you consume.",
+      "How does insurance work?": "You pay a small premium to transfer the risk of a catastrophic financial loss to the insurance company.",
+      "How does credit card interest work?": "You are charged a percentage on your unpaid balance, severely compounding daily if not paid in full.",
+      "How to read a contract?": "Always focus heavily on the obligations, liabilities, termination clauses, and fine-print deliverables.",
+      "How to negotiate salary?": "Always anchor first, focus entirely on the market value you provide, and negotiate total compensation.",
+      "How to plan a budget?": "Track every dollar using the 50/30/20 rule: 50% needs, 30% wants, 20% savings/investments.",
+      "How to make long-term decisions?": "Use second-order thinking—consider not just the immediate consequence, but the consequence of the consequence.",
+      "How to evaluate risk?": "Calculate the worst-case scenario severity multiplied by its absolute mathematical probability.",
+      "How to detect scams?": "If there is forced urgency, requests for unusual payment methods, or it sounds too good to be true, it's a scam."
+    };
+
+    return {
+      title: q,
+      text: answers[q] || "Briefly explain the answer out loud.",
+      instruction: "Explain this fundamental concept confidently."
+    };
+  }),
+  tongue_twisters: () => shuffle(ALL_TONGUE_TWISTERS).slice(0, 3),
   minimal_pairs: [
-    { pair: ["Ship", "Sheep"], focusSound: "i vs ee", instruction: "Distinguish between short 'i' and long 'ee'." },
-    { pair: ["Bat", "Bad"], focusSound: "t vs d", instruction: "Notice the difference in the final consonant." }
-  ]
+    // Short i vs Long ee
+    { pair: ["Ship", "Sheep"], focusSound: "ɪ vs iː", instruction: "Short 'i' in ship — mouth barely open. Long 'ee' in sheep — stretch your lips." },
+    { pair: ["Bit", "Beat"], focusSound: "ɪ vs iː", instruction: "Feel the difference in how long you hold the vowel." },
+    { pair: ["Sit", "Seat"], focusSound: "ɪ vs iː", instruction: "The 'ea' in seat is longer and more tense than 'i' in sit." },
+    { pair: ["Live", "Leave"], focusSound: "ɪ vs iː", instruction: "Very common confusion — 'I live here' vs 'I will leave here'." },
+    { pair: ["Fill", "Feel"], focusSound: "ɪ vs iː", instruction: "Notice how your tongue moves up and forward for 'feel'." },
+    { pair: ["Itch", "Each"], focusSound: "ɪ vs iː", instruction: "Short versus long vowel — the meaning changes completely." },
+    // Short u vs Long oo
+    { pair: ["Pull", "Pool"], focusSound: "ʊ vs uː", instruction: "Round your lips more and hold longer for 'pool'." },
+    { pair: ["Full", "Fool"], focusSound: "ʊ vs uː", instruction: "'Full' is relaxed. 'Fool' is tense with a longer vowel." },
+    { pair: ["Look", "Luke"], focusSound: "ʊ vs uː", instruction: "Names can sound very different — 'look' vs the name 'Luke'." },
+    { pair: ["Could", "Cooed"], focusSound: "ʊ vs uː", instruction: "Modal verb vs past tense of 'coo' — very different contexts." },
+    // Short a vs Short e
+    { pair: ["Bad", "Bed"], focusSound: "æ vs ɛ", instruction: "Drop your jaw further for 'bad'. 'Bed' is more closed." },
+    { pair: ["Pan", "Pen"], focusSound: "æ vs ɛ", instruction: "Very common confusion — 'a cooking pan' vs 'a pen for writing'." },
+    { pair: ["Man", "Men"], focusSound: "æ vs ɛ", instruction: "Singular vs plural — just the vowel changes!" },
+    { pair: ["Bag", "Beg"], focusSound: "æ vs ɛ", instruction: "Open wide for 'bag'. Close slightly for 'beg'." },
+    { pair: ["Sand", "Send"], focusSound: "æ vs ɛ", instruction: "Crucial at the beach vs sending an email — don't mix these up." },
+    // Short o vs Long aw
+    { pair: ["Cot", "Caught"], focusSound: "ɒ vs ɔː", instruction: "Some accents merge these — but in standard English they differ." },
+    { pair: ["Don", "Dawn"], focusSound: "ɒ vs ɔː", instruction: "The name 'Don' vs the time 'dawn' — a longer, rounder vowel." },
+    // Vowel before r
+    { pair: ["Ship", "Sharp"], focusSound: "ɪ vs ɑː", instruction: "The 'ar' in sharp is an open, long vowel — very different from 'i'." },
+    { pair: ["Hit", "Heart"], focusSound: "ɪ vs ɑː", instruction: "Feel how far your jaw drops for 'heart' compared to 'hit'." },
+    // Final consonants T vs D
+    { pair: ["Bat", "Bad"], focusSound: "t vs d", instruction: "Unvoiced 't' stops air completely. Voiced 'd' adds a buzz." },
+    { pair: ["Bet", "Bed"], focusSound: "t vs d", instruction: "The final sound changes meaning — feel your vocal cords for 'd'." },
+    { pair: ["Coat", "Code"], focusSound: "t vs d", instruction: "Winter wear vs programming — one tiny sound makes the difference." },
+    { pair: ["Seat", "Seed"], focusSound: "t vs d", instruction: "Notice the vowel is often longer before a voiced consonant like 'd'." },
+    // Final P vs B
+    { pair: ["Cap", "Cab"], focusSound: "p vs b", instruction: "Unvoiced 'p' vs voiced 'b' — your vocal cords should vibrate for 'b'." },
+    { pair: ["Rope", "Robe"], focusSound: "p vs b", instruction: "Clothing vs the thing you climb — just the last sound is different." },
+    // S vs Z
+    { pair: ["Sip", "Zip"], focusSound: "s vs z", instruction: "'S' is unvoiced — just air. 'Z' buzzes — feel your throat vibrate." },
+    { pair: ["Seal", "Zeal"], focusSound: "s vs z", instruction: "Animal vs enthusiasm — one sound, completely different meaning." },
+    { pair: ["Fuss", "Fuzz"], focusSound: "s vs z", instruction: "Unvoiced hiss vs a voiced buzz at the end." },
+    // TH voiced vs unvoiced
+    { pair: ["Think", "This"], focusSound: "θ vs ð", instruction: "'Think' has unvoiced 'th' (no buzz). 'This' has voiced 'th' (buzz)." },
+    { pair: ["Bath", "Bathe"], focusSound: "θ vs ð", instruction: "Noun vs verb — the 'th' sound changes! Unvoiced for 'bath', voiced for 'bathe'." },
+    { pair: ["Teeth", "Teethe"], focusSound: "θ vs ð", instruction: "The noun 'teeth' ends unvoiced. The verb 'teethe' ends voiced." },
+    // V vs W (very common for Indian speakers)
+    { pair: ["Vine", "Wine"], focusSound: "v vs w", instruction: "'V' — top teeth on bottom lip. 'W' — round lips, no teeth contact." },
+    { pair: ["Vest", "West"], focusSound: "v vs w", instruction: "Clothes vs a direction — extremely common confusion to fix!" },
+    { pair: ["Very", "Wary"], focusSound: "v vs w", instruction: "Practice until 'very' never sounds like 'wary' again." },
+    { pair: ["Veil", "Whale"], focusSound: "v vs w", instruction: "Feel your lip touch your teeth for 'v' — no contact for 'w'." },
+    // L vs R
+    { pair: ["Light", "Right"], focusSound: "l vs r", instruction: "Tongue tip touches teeth ridge for 'l'. Curls back for 'r'." },
+    { pair: ["Liver", "River"], focusSound: "l vs r", instruction: "Both start with a different liquid consonant — feel the tongue placement." },
+    { pair: ["Fly", "Fry"], focusSound: "l vs r", instruction: "Cooking methods — but very different sounds. Don't let 'fly' become 'fry'." },
+    // N vs M
+    { pair: ["Night", "Might"], focusSound: "n vs m", instruction: "Nasal sounds — 'n' tongue touches the ridge, 'm' lips press together." },
+    { pair: ["Not", "Mot"], focusSound: "n vs m", instruction: "Feel where the air is blocked for each nasal." },
+    // Ch vs Sh
+    { pair: ["Chip", "Ship"], focusSound: "tʃ vs ʃ", instruction: "'Ch' has a 't' before the 'sh' — it's an affricate. 'Sh' is smooth." },
+    { pair: ["Chair", "Share"], focusSound: "tʃ vs ʃ", instruction: "Furniture vs dividing — the 'ch' pops more than 'sh'." },
+  ],
+
+};
+
+const getFallback = (type) => {
+  const fb = FALLBACK_EXERCISES[type];
+  if (typeof fb === 'function') return fb();
+  return fb ? shuffle(fb).slice(0, 3) : shuffle(FALLBACK_EXERCISES.shadowing).slice(0, 3);
 };
 
 export async function getExerciseContent(type) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: 'application/json', temperature: 0.8 } });
-    const complexityPrompt = type === 'shadowing' 
-      ? "Provide 3 unique, advanced English sentences. Each sentence MUST be 20-30 words long, complex in structure, and reflect highly natural but sophisticated speech." 
-      : "Provide 3 unique, targeted tongue twisters or minimal pairs.";
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: 'application/json', temperature: 1.0 } });
+    const seed = Math.floor(Math.random() * 100000);
+    
+    let complexityPrompt;
+    if (type === 'shadowing') {
+      complexityPrompt = `Provide 3 COMPLETELY DIFFERENT advanced English sentences (seed:${seed}). Each must be 20-30 words, on a DIFFERENT TOPIC (e.g. travel, science, emotions, culture, food, work). Complex structure, highly natural sophisticated speech. Do NOT repeat any sentence from before.`;
+    } else if (type === 'tongue_twisters') {
+      complexityPrompt = `Provide 3 COMPLETELY DIFFERENT tongue twisters (seed:${seed}). Each must focus on a DIFFERENT consonant or sound. Make them genuinely difficult and fun. Do NOT use Peter Piper or She Sells Seashells.`;
+    } else if (type === 'concepts') {
+      const selected = shuffle(ALL_CONCEPTS).slice(0, 3).join('", "');
+      complexityPrompt = `Explain the difference between these 3 concept pairs: "${selected}". For each, provide a clear 2-sentence explanation of their fundamental differences. You MUST format your response as a JSON array of exactly 3 objects. EXACT FORMAT: {"title": "X vs Y", "text": "Explanation of difference", "instruction": "Pronunciation tip"}.`;
+    } else if (type === 'fundamentals') {
+      const selected = shuffle(ALL_FUNDAMENTALS).slice(0, 3).join('", "');
+      complexityPrompt = `Answer these 3 fundamental questions: "${selected}". For each question, provide a clear, practical 2-sentence explanation and a 1-sentence real-world example. You MUST format your response as a JSON array of exactly 3 objects. EXACT FORMAT: {"title": "The Question", "text": "The short explanation + example", "instruction": "Pronunciation tip"}.`;
+    } else {
+      complexityPrompt = `Provide 3 unique, targeted minimal pairs (seed:${seed}). Each pair must focus on a DIFFERENT vowel or consonant contrast. Do NOT repeat previous ones.`;
+    }
+    let schemaStr = '{text, focusSound, instruction}';
+    if (type === 'minimal_pairs') schemaStr = '{pair: [string, string], focusSound, instruction}';
+    else if (type === 'concepts' || type === 'fundamentals') schemaStr = '{title, text, instruction}';
     
     const prompt = `${complexityPrompt} Return ONLY a JSON array. 
     Category: "${type}".
-    JSON Schema: ${type === 'minimal_pairs' ? '{pair: [string, string], focusSound, instruction}' : '{text, focusSound, instruction}'}`;
+    JSON Schema: ${schemaStr}`;
     
     const result = await model.generateContent(prompt);
     const content = safeJsonParse(result.response.text());
     if (Array.isArray(content) && content.length > 0) return content;
-    return FALLBACK_EXERCISES[type] || FALLBACK_EXERCISES['shadowing'];
-  } catch (e) { return FALLBACK_EXERCISES[type] || FALLBACK_EXERCISES['shadowing']; }
+    return getFallback(type);
+  } catch (e) { return getFallback(type); }
 }
 
 export async function evaluateActiveRecall(word, sentence) {

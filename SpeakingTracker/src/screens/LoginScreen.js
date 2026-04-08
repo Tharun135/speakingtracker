@@ -144,76 +144,123 @@ export default function LoginScreen({ onLogin }) {
     outputRange: [0, OVERLAY_WIDTH]
   });
 
+  const isMobile = width < 768;
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.card}>
-        <View style={[styles.formContainer, { left: 0 }]}>
-           <View style={styles.form}>
-              <Text style={styles.title}>Sign in</Text>
+      <View style={[styles.card, isMobile && { width: width * 0.9, height: 'auto', paddingVertical: 20 }]}>
+        
+        {/* MOBILE VIEW */}
+        {isMobile ? (
+          <View style={[styles.formContainer, { width: '100%', position: 'relative', height: 'auto' }]}>
+            <View style={[styles.form, { padding: 20 }]}>
+              <Text style={styles.title}>{isSignUp ? 'Create Account' : 'Sign in'}</Text>
               <View style={styles.socialRow}>
                 <SocialIcon emoji="🌐" label="Google" />
                 <SocialIcon emoji="📧" label="Other Email" />
               </View>
-              <Text style={styles.label}>or use your account</Text>
-              <NeuInput placeholder="Email" value={email} onChangeText={handleEmailChange} keyboardType="email-address" onSubmitEditing={handleLogin} />
-              <NeuInput placeholder="Password" value={password} onChangeText={(t) => {setError(''); setPassword(t);}} secureTextEntry onSubmitEditing={handleLogin} />
+              <Text style={styles.label}>{isSignUp ? 'or use your email' : 'or use your account'}</Text>
               
-              <TouchableOpacity style={styles.rememberRow} onPress={() => setRememberMe(!rememberMe)}>
-                <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
-                  <Text style={styles.checkIcon}>{rememberMe ? '✓' : ''}</Text>
-                </View>
-                <Text style={styles.rememberText}>Remember Me</Text>
-              </TouchableOpacity>
+              {isSignUp && <NeuInput placeholder="Name" value={name} onChangeText={(t) => {setError(''); setName(t);}} />}
+              <NeuInput placeholder="Email" value={email} onChangeText={handleEmailChange} keyboardType="email-address" />
+              <NeuInput placeholder="Password" value={password} onChangeText={(t) => {setError(''); setPassword(t);}} secureTextEntry />
+              {isSignUp && <NeuInput placeholder="Repeat Password" value={repeatPassword} onChangeText={(t) => {setError(''); setRepeatPassword(t);}} secureTextEntry />}
+              
+              {!isSignUp && (
+                <TouchableOpacity style={styles.rememberRow} onPress={() => setRememberMe(!rememberMe)}>
+                  <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+                    <Text style={styles.checkIcon}>{rememberMe ? '✓' : ''}</Text>
+                  </View>
+                  <Text style={styles.rememberText}>Remember Me</Text>
+                </TouchableOpacity>
+              )}
 
-              <TouchableOpacity><Text style={styles.forgot}>Forgot your password?</Text></TouchableOpacity>
-              
-              {error && !isSignUp && <Text style={styles.errorText}>{error}</Text>}
+              {!isSignUp && <TouchableOpacity><Text style={styles.forgot}>Forgot your password?</Text></TouchableOpacity>}
+              {error ? <Text style={styles.errorText}>{error}</Text> : null}
               
               <TouchableOpacity style={styles.primaryBtn} onPress={handleLogin}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>SIGN IN</Text>}
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>{isSignUp ? 'SIGN UP' : 'SIGN IN'}</Text>}
               </TouchableOpacity>
-           </View>
-        </View>
 
-        <View style={[styles.formContainer, { right: 0 }]}>
-           <View style={styles.form}>
-              <Text style={styles.title}>Create Account</Text>
-              <View style={styles.socialRow}>
-                <SocialIcon emoji="🌐" label="Google" />
-                <SocialIcon emoji="📧" label="Other Email" />
-              </View>
-              <Text style={styles.label}>or use your email</Text>
-              <NeuInput placeholder="Name" value={name} onChangeText={(t) => {setError(''); setName(t);}} onSubmitEditing={handleLogin} />
-              <NeuInput placeholder="Email" value={email} onChangeText={(t) => {setError(''); setEmail(t);}} keyboardType="email-address" onSubmitEditing={handleLogin} />
-              <NeuInput placeholder="Password" value={password} onChangeText={(t) => {setError(''); setPassword(t);}} secureTextEntry onSubmitEditing={handleLogin} />
-              <NeuInput placeholder="Repeat Password" value={repeatPassword} onChangeText={(t) => {setError(''); setRepeatPassword(t);}} secureTextEntry onSubmitEditing={handleLogin} />
-              
-              {error && isSignUp && <Text style={styles.errorText}>{error}</Text>}
-
-              <TouchableOpacity style={styles.primaryBtn} onPress={handleLogin}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>SIGN UP</Text>}
+              <TouchableOpacity style={{ marginTop: 25 }} onPress={() => setIsSignUp(!isSignUp)}>
+                <Text style={{ color: '#6C63FF', fontWeight: 'bold' }}>
+                  {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+                </Text>
               </TouchableOpacity>
-           </View>
-        </View>
+            </View>
+          </View>
+        ) : (
+          /* DESKTOP/WEB VIEW (SLIDER) */
+          <>
+            <View style={[styles.formContainer, { left: 0 }]}>
+               <View style={styles.form}>
+                  <Text style={styles.title}>Sign in</Text>
+                  <View style={styles.socialRow}>
+                    <SocialIcon emoji="🌐" label="Google" />
+                    <SocialIcon emoji="📧" label="Other Email" />
+                  </View>
+                  <Text style={styles.label}>or use your account</Text>
+                  <NeuInput placeholder="Email" value={email} onChangeText={handleEmailChange} keyboardType="email-address" onSubmitEditing={handleLogin} />
+                  <NeuInput placeholder="Password" value={password} onChangeText={(t) => {setError(''); setPassword(t);}} secureTextEntry onSubmitEditing={handleLogin} />
+                  
+                  <TouchableOpacity style={styles.rememberRow} onPress={() => setRememberMe(!rememberMe)}>
+                    <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+                      <Text style={styles.checkIcon}>{rememberMe ? '✓' : ''}</Text>
+                    </View>
+                    <Text style={styles.rememberText}>Remember Me</Text>
+                  </TouchableOpacity>
 
-        <Animated.View style={[styles.overlayContainer, { transform: [{ translateX: overlayTranslateX }] }]}>
-          <Animated.View style={[styles.overlay, { transform: [{ translateX: overlayContentTranslateX }] }]}>
-              <View style={styles.overlayPanelLeft}>
-                 <Text style={styles.overlayTitle}>Welcome Back!</Text>
-                 <Text style={styles.overlayText}>To keep connected please login with your personal info</Text>
-                 <TouchableOpacity style={styles.ghostBtn} onPress={toggleMode}>
-                   <Text style={styles.ghostBtnText}>SIGN IN</Text>
-                 </TouchableOpacity>
-              </View>
-              <View style={styles.overlayPanelRight}>
-                 <Text style={styles.overlayTitle}>Hello, Friend!</Text>
-                 <Text style={styles.overlayText}>Enter your personal details and start journey with us</Text>
-                 <TouchableOpacity style={styles.ghostBtn} onPress={toggleMode}>
-                   <Text style={styles.ghostBtnText}>SIGN UP</Text>
-                 </TouchableOpacity>
-              </View>
-          </Animated.View>
-        </Animated.View>
+                  <TouchableOpacity><Text style={styles.forgot}>Forgot your password?</Text></TouchableOpacity>
+                  
+                  {error && !isSignUp && <Text style={styles.errorText}>{error}</Text>}
+                  
+                  <TouchableOpacity style={styles.primaryBtn} onPress={handleLogin}>
+                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>SIGN IN</Text>}
+                  </TouchableOpacity>
+               </View>
+            </View>
+
+            <View style={[styles.formContainer, { right: 0 }]}>
+               <View style={styles.form}>
+                  <Text style={styles.title}>Create Account</Text>
+                  <View style={styles.socialRow}>
+                    <SocialIcon emoji="🌐" label="Google" />
+                    <SocialIcon emoji="📧" label="Other Email" />
+                  </View>
+                  <Text style={styles.label}>or use your email</Text>
+                  <NeuInput placeholder="Name" value={name} onChangeText={(t) => {setError(''); setName(t);}} onSubmitEditing={handleLogin} />
+                  <NeuInput placeholder="Email" value={email} onChangeText={(t) => {setError(''); setEmail(t);}} keyboardType="email-address" onSubmitEditing={handleLogin} />
+                  <NeuInput placeholder="Password" value={password} onChangeText={(t) => {setError(''); setPassword(t);}} secureTextEntry onSubmitEditing={handleLogin} />
+                  <NeuInput placeholder="Repeat Password" value={repeatPassword} onChangeText={(t) => {setError(''); setRepeatPassword(t);}} secureTextEntry onSubmitEditing={handleLogin} />
+                  
+                  {error && isSignUp && <Text style={styles.errorText}>{error}</Text>}
+
+                  <TouchableOpacity style={styles.primaryBtn} onPress={handleLogin}>
+                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>SIGN UP</Text>}
+                  </TouchableOpacity>
+               </View>
+            </View>
+
+            <Animated.View style={[styles.overlayContainer, { transform: [{ translateX: overlayTranslateX }] }]}>
+              <Animated.View style={[styles.overlay, { transform: [{ translateX: overlayContentTranslateX }] }]}>
+                  <View style={styles.overlayPanelLeft}>
+                     <Text style={styles.overlayTitle}>Welcome Back!</Text>
+                     <Text style={styles.overlayText}>To keep connected please login with your personal info</Text>
+                     <TouchableOpacity style={styles.ghostBtn} onPress={toggleMode}>
+                       <Text style={styles.ghostBtnText}>SIGN IN</Text>
+                     </TouchableOpacity>
+                  </View>
+                  <View style={styles.overlayPanelRight}>
+                     <Text style={styles.overlayTitle}>Hello, Friend!</Text>
+                     <Text style={styles.overlayText}>Enter your personal details and start journey with us</Text>
+                     <TouchableOpacity style={styles.ghostBtn} onPress={toggleMode}>
+                       <Text style={styles.ghostBtnText}>SIGN UP</Text>
+                     </TouchableOpacity>
+                  </View>
+              </Animated.View>
+            </Animated.View>
+          </>
+        )}
       </View>
     </SafeAreaView>
   );

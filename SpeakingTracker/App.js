@@ -146,7 +146,7 @@ export default function App() {
               elevation: 20,
               borderRadius: 30,
               position: 'absolute',
-              bottom: Platform.OS === 'ios' ? 35 : 30,
+              bottom: Platform.OS === 'ios' ? 55 : 55,
               left: 20,
               right: 20,
               shadowColor: '#000',
