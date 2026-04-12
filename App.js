@@ -13,6 +13,7 @@ import VoiceLabScreen from './src/screens/VoiceLabScreen';
 import VocabScreen from './src/screens/VocabScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import LoginScreen from './src/screens/LoginScreen';
+import ShadowingScreen from './src/screens/ShadowingScreen';
 import { getProfile } from './src/utils/storage';
 
 if (Platform.OS !== 'web') {
@@ -51,6 +52,7 @@ const TAB_ICONS = {
   Today: { active: '🏠', inactive: '🏠' },
   Lab: { active: '🧪', inactive: '🧪' },
   Vocab: { active: '📚', inactive: '📚' },
+  Shadow: { active: '📜', inactive: '📜' },
   Journal: { active: '📓', inactive: '📓' },
   Settings: { active: '⚙️', inactive: '⚙️' },
 };
@@ -71,19 +73,30 @@ export default function App() {
   }, []);
 
   const initialize = async () => {
+    // Set a safety timeout of 3 seconds
+    const safetyTimeout = setTimeout(() => {
+      if (isInitializing) {
+        setIsInitializing(false);
+      }
+    }, 3000);
+
     try {
       // 1. Setup Notifications
       if (Platform.OS !== 'web') {
-        if (Platform.OS === 'android') {
-          await Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#6C63FF',
-          });
+        try {
+          if (Platform.OS === 'android') {
+            await Notifications.setNotificationChannelAsync('default', {
+              name: 'default',
+              importance: Notifications.AndroidImportance.MAX,
+              vibrationPattern: [0, 250, 250, 250],
+              lightColor: '#6C63FF',
+            });
+          }
+          const { status: existingStatus } = await Notifications.getPermissionsAsync();
+          if (existingStatus !== 'granted') await Notifications.requestPermissionsAsync();
+        } catch (e) {
+          console.warn('Notifications Init Failed:', e);
         }
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        if (existingStatus !== 'granted') await Notifications.requestPermissionsAsync();
       }
 
       // 2. Check Persisted Login
@@ -93,13 +106,13 @@ export default function App() {
         setProfile(user);
         setIsLoggedIn(true);
       } else {
-        // Fallback for first-time session check
         const p = await getProfile();
         if (p) setProfile(p);
       }
     } catch (e) {
       console.error('Init Error', e);
     } finally {
+      clearTimeout(safetyTimeout);
       setIsInitializing(false);
     }
   };
@@ -178,6 +191,9 @@ export default function App() {
           </Tab.Screen>
           <Tab.Screen name="Vocab">
             {(props) => <VocabScreen {...props} profile={profile} />}
+          </Tab.Screen>
+          <Tab.Screen name="Shadow">
+            {(props) => <ShadowingScreen {...props} />}
           </Tab.Screen>
           <Tab.Screen name="Journal">
             {(props) => <HistoryScreen {...props} profile={profile} />}

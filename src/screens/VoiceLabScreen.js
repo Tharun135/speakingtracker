@@ -201,16 +201,16 @@ export default function VoiceLabScreen({ profile }) {
           <Text style={styles.header}>Echo Lab</Text>
           
           <View style={styles.row}>
-            <LabCard emoji="🗣️" title="Shadowing" onPress={() => loadExercises('shadowing')} />
             <LabCard emoji="👅" title="Twisters" onPress={() => loadExercises('tongue_twisters')} />
-          </View>
-          <View style={styles.row}>
-            <LabCard emoji="🎭" title="Roleplay" onPress={() => startSim('Job Interview')} />
             <LabCard emoji="🔊" title="Minimal" onPress={() => loadExercises('minimal_pairs')} />
           </View>
           <View style={styles.row}>
+            <LabCard emoji="🎭" title="Roleplay" onPress={() => startSim('Job Interview')} />
             <LabCard emoji="💡" title="Concepts" onPress={() => loadExercises('concepts')} />
-            <LabCard emoji="🧠" title="Fundamentals" onPress={() => loadExercises('fundamentals')} />
+          </View>
+          <View style={styles.row}>
+            <LabCard emoji="🧘" title="Reflect" onPress={() => Alert.alert('Coming Soon', 'A guided self-reflection mode is in development!')} />
+            <LabCard emoji="🌍" title="Knowledge" onPress={() => loadExercises('fundamentals')} />
           </View>
 
           {loading && <ActivityIndicator color="#6C63FF" style={{ marginTop: 30 }} />}
@@ -257,7 +257,7 @@ export default function VoiceLabScreen({ profile }) {
                     <Text style={{ color: '#FFF', fontSize: 16 }}>⬅️ Back</Text>
                   </TouchableOpacity>
                   <Text style={styles.activeBadge}>
-                    {currentType === 'roleplay' ? '🎭 ROLEPLAY MODE' : currentType === 'concepts' ? '💡 CONCEPT CLARIFICATION' : currentType === 'fundamentals' ? '🧠 LIFE FUNDAMENTALS' : '🗣️ PRACTISE MODE'}
+                    {currentType === 'roleplay' ? '🎭 ROLEPLAY MODE' : currentType === 'concepts' ? '💡 CONCEPT CLARIFICATION' : currentType === 'fundamentals' ? '🧠 UNIVERSE & KNOWLEDGE' : '🗣️ PRACTISE MODE'}
                   </Text>
                 </View>
                 {activeEx.title && <Text style={[styles.activeText, { fontSize: 24, marginBottom: 10, marginTop: 15 }]}>{activeEx.title}</Text>}
