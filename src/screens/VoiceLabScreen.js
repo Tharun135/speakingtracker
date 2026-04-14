@@ -5,6 +5,7 @@ import { Audio } from 'expo-av';
 import { getExerciseContent, analyzeRecording, startConversationSim, continueConversationSim } from '../utils/gemini';
 import { addXP, saveToJournal } from '../utils/storage';
 import { speak, stopSpeech } from '../utils/speech';
+import { KERALA_FESTIVALS } from '../data/culturalData';
 
 const { width } = Dimensions.get('window');
 
@@ -30,6 +31,10 @@ export default function VoiceLabScreen({ profile }) {
   const [simRecording, setSimRecording] = useState(null);
   const [isSimRecording, setIsSimRecording] = useState(false);
 
+  // Culture State
+  const [selectedCulturalItem, setSelectedCulturalItem] = useState(null);
+  const [showCulturalModal, setShowCulturalModal] = useState(false);
+
 
 
   useEffect(() => {
@@ -53,6 +58,13 @@ export default function VoiceLabScreen({ profile }) {
   };
 
   const loadExercises = async (type) => {
+    if (type === 'culture') {
+      setCurrentType('culture');
+      setExercises([]);
+      setSimActive(false);
+      setScoreResult(null);
+      return;
+    }
     setLoading(true);
     setSimActive(false);
     setScoreResult(null);
@@ -209,14 +221,14 @@ export default function VoiceLabScreen({ profile }) {
             <LabCard emoji="💡" title="Concepts" onPress={() => loadExercises('concepts')} />
           </View>
           <View style={styles.row}>
-            <LabCard emoji="🧘" title="Reflect" onPress={() => Alert.alert('Coming Soon', 'A guided self-reflection mode is in development!')} />
-            <LabCard emoji="🌍" title="Knowledge" onPress={() => loadExercises('fundamentals')} />
+            <LabCard emoji="🧘" title="Reflect" onPress={() => loadExercises('reflection')} />
+            <LabCard emoji="🌴" title="Culture" onPress={() => loadExercises('culture')} />
           </View>
 
           {loading && <ActivityIndicator color="#6C63FF" style={{ marginTop: 30 }} />}
 
           {/* List of Loaded Exercises */}
-          {!simActive && exercises.length > 0 && !activeEx && (
+          {!simActive && exercises.length > 0 && !activeEx && currentType !== 'culture' && (
             <View style={styles.exList}>
               <View style={styles.listHeaderRow}>
                 <Text style={styles.subHeader}>
@@ -245,6 +257,33 @@ export default function VoiceLabScreen({ profile }) {
             </View>
           )}
 
+          {/* Cultural Spotlight List */}
+          {currentType === 'culture' && !activeEx && (
+            <View style={styles.exList}>
+              <Text style={styles.subHeader}>🌴 Kerala Cultural Spotlight</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
+                {KERALA_FESTIVALS.map((item, idx) => (
+                  <TouchableOpacity 
+                    key={idx} 
+                    onPress={() => {
+                      setSelectedCulturalItem(item);
+                      setShowCulturalModal(true);
+                    }}
+                    style={[styles.cultureCard, { borderColor: item.color + '44' }]}
+                  >
+                    <View style={styles.cultureHeader}>
+                      <Text style={styles.cultureName}>{item.name}</Text>
+                      <Text style={[styles.cultureType, { color: item.color }]}>{item.type}</Text>
+                    </View>
+                    <Text style={styles.cultureDesc} numberOfLines={3}>{item.description}</Text>
+                    <View style={[styles.cultureDivider, { backgroundColor: item.color + '22' }]} />
+                    <Text style={[styles.cultureLearnMore, { color: item.color }]}>📖 Learn More</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
           {/* Active Exercise View */}
           {activeEx && !simActive && (
             <View style={styles.activeArea}>
@@ -257,12 +296,16 @@ export default function VoiceLabScreen({ profile }) {
                     <Text style={{ color: '#FFF', fontSize: 16 }}>⬅️ Back</Text>
                   </TouchableOpacity>
                   <Text style={styles.activeBadge}>
-                    {currentType === 'roleplay' ? '🎭 ROLEPLAY MODE' : currentType === 'concepts' ? '💡 CONCEPT CLARIFICATION' : currentType === 'fundamentals' ? '🧠 UNIVERSE & KNOWLEDGE' : '🗣️ PRACTISE MODE'}
+                    {currentType === 'roleplay' ? '🎭 ROLEPLAY MODE' : currentType === 'concepts' ? '💡 CONCEPT CLARIFICATION' : currentType === 'fundamentals' ? '🧠 UNIVERSE & KNOWLEDGE' : currentType === 'reflection' ? '🧘 SELF REFLECTION' : '🗣️ PRACTISE MODE'}
                   </Text>
                 </View>
                 {activeEx.title && <Text style={[styles.activeText, { fontSize: 24, marginBottom: 10, marginTop: 15 }]}>{activeEx.title}</Text>}
                 <Text style={[styles.activeText, activeEx.title && { fontSize: 20, fontWeight: '500' }]}>{activeEx.text || activeEx.pair?.join(' / ')}</Text>
-                <Text style={styles.instruction}>{activeEx.instruction || 'Listen carefully, then say it along.'}</Text>
+                
+                <View style={styles.guideBox}>
+                  <Text style={styles.guideHeader}>💡 KEY GUIDANCE</Text>
+                  <Text style={styles.guideText}>{activeEx.instruction || 'Listen carefully, then say it along.'}</Text>
+                </View>
 
                 {/* Big Play / Replay Button */}
                 <TouchableOpacity
@@ -360,6 +403,58 @@ export default function VoiceLabScreen({ profile }) {
           )}
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Cultural Detail Modal */}
+      {selectedCulturalItem && (
+        <React.Fragment>
+          {/* Modal content similar to what was in HomeScreen but adapted for VoiceLab */}
+          <View style={[styles.modalOverlay, { display: showCulturalModal ? 'flex' : 'none' }]}>
+            <View style={[styles.culturalModalContent, { borderTopColor: selectedCulturalItem.color }]}>
+              <View style={styles.culturalModalHeader}>
+                <View>
+                  <Text style={[styles.cultType, { color: selectedCulturalItem.color }]}>{selectedCulturalItem.type}</Text>
+                  <Text style={styles.cultName}>{selectedCulturalItem.name}</Text>
+                </View>
+                <TouchableOpacity onPress={() => setShowCulturalModal(false)} style={styles.cultClose}>
+                  <Text style={styles.cultCloseText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <Text style={styles.cultText}>{selectedCulturalItem.intro}</Text>
+
+                <Text style={styles.cultSectionTitle}>What it Represents</Text>
+                <Text style={styles.cultText}>{selectedCulturalItem.represents}</Text>
+
+                <Text style={styles.cultSectionTitle}>The Main Tradition: {selectedCulturalItem.mainTradition?.title}</Text>
+                <View style={[styles.traditionBox, { backgroundColor: selectedCulturalItem.color + '11', borderColor: selectedCulturalItem.color + '33' }]}>
+                  <Text style={[styles.traditionText, { color: selectedCulturalItem.color }]}>{selectedCulturalItem.mainTradition?.details}</Text>
+                </View>
+
+                <Text style={styles.cultSectionTitle}>{selectedCulturalItem.customs?.title}</Text>
+                <Text style={styles.cultText}>{selectedCulturalItem.customs?.details}</Text>
+
+                <Text style={styles.cultSectionTitle}>Other Celebrations</Text>
+                <View style={styles.otherGrid}>
+                  {selectedCulturalItem.others?.map((other, i) => (
+                    <View key={i} style={styles.otherItem}>
+                        <Text style={[styles.otherName, { color: selectedCulturalItem.color }]}>• {other.name}</Text>
+                        <Text style={styles.otherDetail}>{other.detail}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                <Text style={styles.cultSectionTitle}>In Simple Terms</Text>
+                <View style={styles.simpleSummaryBox}>
+                  <Text style={styles.summaryText}>{selectedCulturalItem.simpleTerms}</Text>
+                </View>
+                
+                <View style={{ height: 40 }} />
+              </ScrollView>
+            </View>
+          </View>
+        </React.Fragment>
+      )}
     </SafeAreaView>
   );
 }
@@ -400,9 +495,11 @@ const styles = StyleSheet.create({
   activeBadge: { color: '#6C63FF', fontSize: 11, fontWeight: '900', letterSpacing: 1 },
   activeCard: { backgroundColor: '#1A1A2E', padding: 24, borderRadius: 24, borderWidth: 1, borderColor: '#2A2A4A' },
   activeHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  guideBox: { backgroundColor: '#1C1C36', padding: 15, borderRadius: 15, marginBottom: 20, borderWidth: 1, borderColor: '#6C63FF33' },
+  guideHeader: { color: '#6C63FF', fontSize: 10, fontWeight: '900', marginBottom: 5, letterSpacing: 0.5 },
+  guideText: { color: '#B0B0D0', fontSize: 13, lineHeight: 20, fontStyle: 'italic' },
   speakIcon: { fontSize: 24 },
   activeText: { fontSize: 28, fontWeight: '800', color: '#fff', textAlign: 'center', lineHeight: 42, marginBottom: 18 },
-  instruction: { color: '#6666AA', fontSize: 14, textAlign: 'center', fontStyle: 'italic', marginBottom: 24 },
   playAlongBtn: {
     backgroundColor: '#6C63FF', borderRadius: 20, paddingVertical: 18, paddingHorizontal: 24,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 28,
@@ -444,5 +541,33 @@ const styles = StyleSheet.create({
   sendBtn: { backgroundColor: '#6C63FF', width: 50, height: 50, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
 
   endSimBtn: { backgroundColor: '#1A1A2E', paddingVertical: 15, borderRadius: 20, alignItems: 'center', borderWidth: 1, borderColor: '#2A2A4A' },
-  endSimBtnText: { color: '#FF6584', fontWeight: '800', fontSize: 13 }
+  endSimBtnText: { color: '#FF6584', fontWeight: '800', fontSize: 13 },
+
+  // Culture Styles
+  cultureCard: { width: 260, backgroundColor: '#1A1A2E', borderRadius: 24, padding: 20, marginRight: 15, borderWidth: 1, borderColor: '#2A2A4A' },
+  cultureHeader: { marginBottom: 12 },
+  cultureName: { color: '#fff', fontSize: 18, fontWeight: '900', marginBottom: 4 },
+  cultureType: { fontSize: 10, fontWeight: '900', textTransform: 'uppercase' },
+  cultureDesc: { color: '#B0B0D0', fontSize: 13, lineHeight: 18, height: 54, marginBottom: 12 },
+  cultureDivider: { height: 1, marginBottom: 12 },
+  cultureLearnMore: { fontSize: 11, fontWeight: '800' },
+
+  // Modal Styles
+  modalOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 1000, justifyContent: 'flex-end' },
+  culturalModalContent: { backgroundColor: '#0F0F1A', borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 25, height: '85%', borderTopWidth: 4 },
+  culturalModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 25 },
+  cultType: { fontSize: 11, fontWeight: '900', textTransform: 'uppercase', marginBottom: 4 },
+  cultName: { color: '#fff', fontSize: 26, fontWeight: '900' },
+  cultClose: { backgroundColor: '#1A1A2E', width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },
+  cultCloseText: { color: '#fff', fontSize: 16 },
+  cultText: { color: '#B0B0D0', fontSize: 15, lineHeight: 24, marginBottom: 20 },
+  cultSectionTitle: { color: '#fff', fontSize: 14, fontWeight: '900', marginTop: 15, marginBottom: 10, textTransform: 'uppercase' },
+  traditionBox: { padding: 18, borderRadius: 20, borderWidth: 1, marginBottom: 20 },
+  traditionText: { fontSize: 14, lineHeight: 22, fontWeight: '600' },
+  otherGrid: { gap: 12, marginBottom: 20 },
+  otherItem: { backgroundColor: '#1C1C36', padding: 15, borderRadius: 15 },
+  otherName: { fontWeight: '900', fontSize: 13, marginBottom: 4 },
+  otherDetail: { color: '#B0B0D0', fontSize: 12, lineHeight: 18 },
+  simpleSummaryBox: { backgroundColor: '#1C1C36', padding: 20, borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, borderColor: '#444' },
+  summaryText: { color: '#B0B0D0', fontSize: 14, fontStyle: 'italic', textAlign: 'center' }
 });

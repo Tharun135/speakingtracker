@@ -17,7 +17,7 @@ const safeJsonParse = (text) => {
 export async function analyzeRecording(audioUri) {
   try {
     const base64Audio = await FileSystem.readAsStringAsync(audioUri, { encoding: FileSystem.EncodingType.Base64 });
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: 'application/json' } });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `[Expert English Coach Mode] Analyze this 2-min audio. Return a JSON object with: 1. "transcript": verbatim transcript. 2. "fillers": array of {word, count}. 3. "grammar": array of {wrong, right, explanation}. 4. "vocabulary": array of {word, upgrade, reason}. 5. "fluencyScore": number 1-10. 6. "pronunciation": {score: 1-100, feedback, trickySounds: string[]}. 7. "coachingTip": actionable tip.`;
 
@@ -37,24 +37,68 @@ export async function analyzeRecording(audioUri) {
   }
 }
 
+let seenWords = new Set();
+
 export async function getWordOfTheDay(level = 'B2', interests = []) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: 'application/json' } });
-    const prompt = `English word/phrase of the day for a ${level} learner interested in ${interests.join(', ')}. Return JSON: {word, type, definition, everydaySentences: [{context, sentence}], sayItNaturally: string[], avoidSaying: string[], tip, cefr}`;
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const exclusions = Array.from(seenWords).join(', ');
+    const prompt = `Provide exactly 3 highly practical, high-frequency, common everyday English words for a ${level} learner. 
+    STRICTLY avoid academic, literary, or rare words like "Juxtapose", "Mitigate", or "Paradigm". 
+    Focus ONLY on words used in daily conversation, at a coffee shop, in a standard office meeting, or at home. 
+    AVOID these words: [${exclusions}]. 
+    Return ONLY a JSON array of exactly 3 objects: {"word": "...", "type": "...", "definition": "...", "everydaySentences": [{"context": "...", "sentence": "..."}], "sayItNaturally": ["...", "..."], "avoidSaying": ["..."], "tip": "...", "cefr": "..."}`;
     const result = await model.generateContent(prompt);
-    return safeJsonParse(result.response.text()) || FALLBACK_WORD;
-  } catch (e) { return FALLBACK_WORD; }
+    const content = safeJsonParse(result.response.text());
+    
+    let words = [];
+    if (Array.isArray(content) && content.length === 3) {
+      words = content;
+    } else {
+      // Robust Fallback with filtering
+      const available = FALLBACK_WORDS.filter(w => !seenWords.has(w.word));
+      const pool = available.length >= 3 ? available : FALLBACK_WORDS;
+      words = shuffle(pool).slice(0, 3);
+    }
+    
+    words.forEach(w => seenWords.add(w.word));
+    return words;
+  } catch (e) { 
+    console.error('Gemini Word Error:', e);
+    const available = FALLBACK_WORDS.filter(w => !seenWords.has(w.word));
+    const pool = available.length >= 3 ? available : FALLBACK_WORDS;
+    const words = shuffle(pool).slice(0, 3);
+    words.forEach(w => seenWords.add(w.word));
+    return words; 
+  }
 }
 
-const FALLBACK_WORD = {
-  word: "Get the ball rolling", type: "idiom", definition: "To start something, like a conversation or a project.",
-  everydaySentences: [{ context: "Meeting", sentence: "Let's get the ball rolling by introducing everyone." }],
-  sayItNaturally: ["Get started", "Kick things off"], avoidSaying: ["Start the ball"], tip: "Great for starting any activity.", cefr: "B2"
-};
+const FALLBACK_WORDS = [
+  { word: "Commute", type: "verb/noun", definition: "To travel regularly between home and work.", everydaySentences: [{ context: "Daily Life", sentence: "How long is your commute?" }], sayItNaturally: ["Get to work"], avoidSaying: ["Travel"], tip: "Rhymes with 'cute'.", cefr: "B1" },
+  { word: "Reliable", type: "adj", definition: "Something or someone you can trust.", everydaySentences: [{ context: "Work", sentence: "She is a very reliable teammate." }], sayItNaturally: ["Dependable"], avoidSaying: ["Shaky"], tip: "The stress is on 'li'.", cefr: "B1" },
+  { word: "Schedule", type: "noun/verb", definition: "A plan that lists times for things to happen.", everydaySentences: [{ context: "Work", sentence: "Let me check my schedule." }], sayItNaturally: ["Plan"], avoidSaying: ["Timetable"], tip: "In US: 'Ske-jool'.", cefr: "B1" },
+  { word: "Frustrating", type: "adj", definition: "Making you feel annoyed or impatient.", everydaySentences: [{ context: "Life", sentence: "Traffic is so frustrating." }], sayItNaturally: ["Annoying"], avoidSaying: ["Difficult"], tip: "Focus on the 'rr' sound.", cefr: "B1" },
+  { word: "Essential", type: "adj", definition: "Completely necessary; extremely important.", everydaySentences: [{ context: "Life", sentence: "Water is essential for life." }], sayItNaturally: ["Must-have"], avoidSaying: ["Important"], tip: "Stronger than just 'important'.", cefr: "B2" },
+  { word: "Colleague", type: "noun", definition: "A person that you work with.", everydaySentences: [{ context: "Office", sentence: "I like my colleagues." }], sayItNaturally: ["Teammate"], avoidSaying: ["Co-worker"], tip: "Sounds like 'Koll-eeg'.", cefr: "B1" },
+  { word: "Actually", type: "adverb", definition: "Used to emphasize what is real or true.", everydaySentences: [{ context: "Talk", sentence: "Actually, I prefer tea." }], sayItNaturally: ["In fact"], avoidSaying: ["Really"], tip: "Great filler word.", cefr: "B2" },
+  { word: "Regarding", type: "prep", definition: "About or concerning something.", everydaySentences: [{ context: "Email", sentence: "I'm calling regarding the meeting." }], sayItNaturally: ["About"], avoidSaying: ["Concerning"], tip: "Professional but common.", cefr: "B2" },
+  { word: "Efficient", type: "adj", definition: "Working well without wasting time or energy.", everydaySentences: [{ context: "Work", sentence: "We need an efficient plan." }], sayItNaturally: ["Quick"], avoidSaying: ["Fast"], tip: "Focus on 'E-fish-ent'.", cefr: "B2" },
+  { word: "Opportunity", type: "noun", definition: "A chance to do something.", everydaySentences: [{ context: "Career", sentence: "This is a great opportunity." }], sayItNaturally: ["Chance"], avoidSaying: ["Opening"], tip: "Five syllables!", cefr: "B1" },
+  { word: "Hesitate", type: "verb", definition: "To pause before doing something.", everydaySentences: [{ context: "Talk", sentence: "Don't hesitate to ask." }], sayItNaturally: ["Wait"], avoidSaying: ["Pause"], tip: "The 's' sounds like 'z'.", cefr: "B2" },
+  { word: "Available", type: "adj", definition: "Free to do something or be used.", everydaySentences: [{ context: "Meetings", sentence: "Are you available tomorrow?" }], sayItNaturally: ["Free"], avoidSaying: ["Ready"], tip: "Four syllables.", cefr: "B1" },
+  { word: "Coordinate", type: "verb", definition: "To organize different parts together.", everydaySentences: [{ context: "Project", sentence: "Let's coordinate our efforts." }], sayItNaturally: ["Organize"], avoidSaying: ["Plan"], tip: "Focus on 'Co-or-di-nate'.", cefr: "B2" },
+  { word: "Convenient", type: "adj", definition: "Fitting in well with your plans.", everydaySentences: [{ context: "Life", sentence: "Is 5 PM convenient for you?" }], sayItNaturally: ["Easy"], avoidSaying: ["Good"], tip: "Ends with 'ent'.", cefr: "B1" },
+  { word: "Flexible", type: "adj", definition: "Able to change easily.", everydaySentences: [{ context: "Time", sentence: "My schedule is flexible." }], sayItNaturally: ["Adaptable"], avoidSaying: ["Soft"], tip: "Rhymes with 'terrible'.", cefr: "B1" },
+  { word: "Purchase", type: "verb/noun", definition: "To buy something.", everydaySentences: [{ context: "Shopping", sentence: "I made a large purchase today." }], sayItNaturally: ["Buy"], avoidSaying: ["Get"], tip: "Professional 'buy'.", cefr: "B1" },
+  { word: "Verify", type: "verb", definition: "To check if something is true.", everydaySentences: [{ context: "Security", sentence: "Please verify your email." }], sayItNaturally: ["Check"], avoidSaying: ["Confirm"], tip: "Rhymes with 'classify'.", cefr: "B2" },
+  { word: "Feedback", type: "noun", definition: "Information about a person's performance.", everydaySentences: [{ context: "Work", sentence: "Thanks for the feedback." }], sayItNaturally: ["Opinion"], avoidSaying: ["Review"], tip: "Compound word: Feed + Back.", cefr: "B1" },
+  { word: "Appropriate", type: "adj", definition: "Suitable or right for a situation.", everydaySentences: [{ context: "Business", sentence: "That's not appropriate for work." }], sayItNaturally: ["Correct"], avoidSaying: ["Right"], tip: "Focus on 'Ap-pro-pri-ate'.", cefr: "B2" },
+  { word: "Frequently", type: "adverb", definition: "Often.", everydaySentences: [{ context: "Habit", sentence: "I frequently visit this cafe." }], sayItNaturally: ["A lot"], avoidSaying: ["Always"], tip: "Ends with 'ly'.", cefr: "B1" }
+];
 
 export async function getWritingCorrection(sentence) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: 'application/json' } });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = `Analyze: "${sentence}". Return JSON: {original, corrected, suggestions: string[], explanation, idioms: [{word, meaning}]}`;
     const result = await model.generateContent(prompt);
     return safeJsonParse(result.response.text()) || { original: sentence, corrected: sentence, suggestions: [], explanation: "Your sentence looks good!", idioms: [] };
@@ -135,6 +179,19 @@ const ALL_TONGUE_TWISTERS = [
   { text: "Through three cheese trees three free fleas flew.", focusSound: "th/fr/fl", instruction: "Three different blends back to back — plan each syllable." },
 ];
 
+
+const ALL_REFLECTION = [
+  "What is one thing you learned about yourself today?",
+  "Describe a moment recently when you felt truly proud of yourself.",
+  "If you could give your younger self one piece of advice, what would it be?",
+  "What does 'home' mean to you? Is it a place, a person, or a feeling?",
+  "How do you handle stress, and what can you do to be kinder to yourself?",
+  "Describe a challenge you faced recently and how you overcame it.",
+  "What is a goal you have for the next month, and why is it important?",
+  "Think of someone you admire. What qualities do they have that you'd like to develop?",
+  "What are you most grateful for right now?",
+  "How has your perspective on English learning changed since you started?"
+];
 
 const shuffle = (array) => {
   const result = [...array];
@@ -443,12 +500,15 @@ export async function getExerciseContent(type) {
     } else if (type === 'fundamentals') {
       const selected = shuffle(ALL_FUNDAMENTALS).slice(0, 3).join('", "');
       complexityPrompt = `Answer 4 questions. You MUST Answer these 3 knowledge questions: "${selected}". AND you MUST create 1 additional COMPLETELY NEW extraordinary random fact (e.g. Science, Trivia, or History). For each of these 4 items, provide a clear 2-sentence explanation and a 1-sentence real-world example. DO NOT say "explain it out loud" - you must provide the literal answer text. You MUST format your response as a JSON array. EXACT FORMAT: {"title": "The Question", "text": "The literal answer + example", "instruction": "Pronunciation tip"}.`;
+    } else if (type === 'reflection') {
+      const selected = shuffle(ALL_REFLECTION).slice(0, 3).join('", "');
+      complexityPrompt = `Provide 3 deep-thinking self-reflection prompts like these: "${selected}". Each should encourage at least 30 seconds of speaking. You MUST format your response as a JSON array of 3 objects. EXACT FORMAT: {"title": "Prompt Title", "text": "The full question/prompt", "instruction": "Tip for emotional or clear speaking"}.`;
     } else {
-      complexityPrompt = `Provide 3 unique, targeted minimal pairs (seed:${seed}). Each pair must focus on a DIFFERENT vowel or consonant contrast. Do NOT repeat previous ones.`;
+      complexityPrompt = `Provide 3 unique, targeted minimal pairs (seed:${seed}). Each pair must focus on a DIFFERENT vowel or consonant contrast. Provide a clear, simple explanation of the physical difference in mouth/tongue position. JSON Schema: {pair: [string, string], focusSound, instruction: "CLEARTIP"}.`;
     }
     let schemaStr = '{text, focusSound, instruction}';
     if (type === 'minimal_pairs') schemaStr = '{pair: [string, string], focusSound, instruction}';
-    else if (type === 'concepts' || type === 'fundamentals') schemaStr = '{title, text, instruction}';
+    else if (type === 'concepts' || type === 'fundamentals' || type === 'reflection') schemaStr = '{title, text, instruction}';
     
     const prompt = `${complexityPrompt} Return ONLY a JSON array. 
     Category: "${type}".
@@ -463,7 +523,7 @@ export async function getExerciseContent(type) {
 
 export async function evaluateActiveRecall(word, sentence) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: 'application/json' } });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = `Evaluate "${word}" in: "${sentence}". JSON: {correct: boolean, naturalness: 1-10, feedback, betterPhrasings: [], avoidSaying: [], tip, modelSentence}`;
     const result = await model.generateContent(prompt);
     return safeJsonParse(result.response.text()) || FALLBACK_EVAL(word);
@@ -477,7 +537,7 @@ const FALLBACK_EVAL = (word) => ({
 
 export async function getPhrasalChunks(category = 'Daily Life') {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: 'application/json' } });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = `Provide 3 unique English phrases for: "${category}". JSON: {chunks: [{cat, badge, bc, bt, word, type, def, cefr, everydaySentences: [{context, sentence}]}]}`;
     const result = await model.generateContent(prompt);
     const data = safeJsonParse(result.response.text());
@@ -487,7 +547,7 @@ export async function getPhrasalChunks(category = 'Daily Life') {
 
 export async function getDailyMission(level = 'B2', interests = []) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: 'application/json' } });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = `Create a Daily Speaking Mission for a ${level} learner interested in ${interests.join(', ')}. JSON: {word, targetCount: number, context, motivation}`;
     const result = await model.generateContent(prompt);
     return safeJsonParse(result.response.text()) || { word: "Perspective", targetCount: 3, context: "Sharing your view", motivation: "Think bigger!" };

@@ -8,9 +8,10 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { Audio } from 'expo-av';
 import ConfettiCannon from 'react-native-confetti-cannon';
-import { analyzeRecording, getDailyMission } from '../utils/gemini';
+import { analyzeRecording, getDailyMission, getWordOfTheDay } from '../utils/gemini';
 import { getCompletedDays, toggleDay, calculateStreak, saveDayAnalysis, getProfile, getMissionState, saveMission, saveToJournal, updateMissionProgress } from '../utils/storage';
 import { WEEK_SCHEDULE, EXERCISE_TYPES } from '../data/courseData';
+import { KERALA_FESTIVALS } from '../data/culturalData';
 
 const MOTIVATIONAL = [
   "Every word retrieved today is one less frozen tomorrow.",
@@ -36,6 +37,7 @@ export default function HomeScreen({ profile, onLogout }) {
   const [selectedDay, setSelectedDay] = useState(null);
   const [loading, setLoading] = useState(true);
   const [mission, setMission] = useState(null);
+  const [dailyWord, setDailyWord] = useState(null);
 
   const [recording, setRecording] = useState();
   const [sound, setSound] = useState();
@@ -44,12 +46,18 @@ export default function HomeScreen({ profile, onLogout }) {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [customTopic, setCustomTopic] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [selectedCulturalItem, setSelectedCulturalItem] = useState(null);
+  const [showCulturalModal, setShowCulturalModal] = useState(false);
   const [audioUri, setAudioUri] = useState(null);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const timerRef = useRef(null);
   const scrollRef = useRef(null);
+  const wordsScrollRef = useRef(null);
+  const cultScrollRef = useRef(null);
+  const [wordIdx, setWordIdx] = useState(0);
+  const [cultIdx, setCultIdx] = useState(0);
 
   useEffect(() => {
     return sound ? () => { sound.unloadAsync(); } : undefined;
@@ -75,6 +83,12 @@ export default function HomeScreen({ profile, onLogout }) {
       }
     }
     setMission(m);
+
+    // Load Daily Word
+    const p = await getProfile();
+    const word = await getWordOfTheDay(p?.level || 'B2', p?.interests || []);
+    setDailyWord(word);
+    
     setLoading(false);
   };
 
@@ -244,6 +258,30 @@ export default function HomeScreen({ profile, onLogout }) {
     }
   }
 
+  const scrollWords = (dir) => {
+    const newIdx = dir === 'next' ? Math.min(2, wordIdx + 1) : Math.max(0, wordIdx - 1);
+    setWordIdx(newIdx);
+    const scrollAmount = 295; // width + margin
+    wordsScrollRef.current?.scrollTo({ x: newIdx * scrollAmount, animated: true });
+  };
+
+  const scrollCult = (dir) => {
+    const newIdx = dir === 'next' ? Math.min(KERALA_FESTIVALS.length - 1, cultIdx + 1) : Math.max(0, cultIdx - 1);
+    setCultIdx(newIdx);
+    const scrollAmount = 295; // Same card width as words
+    cultScrollRef.current?.scrollTo({ x: newIdx * scrollAmount, animated: true });
+  };
+
+  const refreshDailyWords = async () => {
+    setLoading(true);
+    const p = await getProfile();
+    const words = await getWordOfTheDay(p?.level || 'B2', p?.interests || []);
+    setDailyWord(words);
+    setWordIdx(0);
+    wordsScrollRef.current?.scrollTo({ x: 0, animated: false });
+    setLoading(false);
+  };
+
   async function playSound() {
     if (sound) {
       setIsPlaying(true);
@@ -251,6 +289,54 @@ export default function HomeScreen({ profile, onLogout }) {
       sound.setOnPlaybackStatusUpdate((status) => { if (status.didJustFinish) setIsPlaying(false); });
     }
   }
+
+  const renderDailyWords = () => {
+    if (!dailyWord || !Array.isArray(dailyWord)) return null;
+    return (
+      <View style={styles.wordsSection}>
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionLabel}>⭐ Common Everyday Words</Text>
+          <View style={styles.arrowControls}>
+             <TouchableOpacity onPress={refreshDailyWords} style={styles.refreshBadge}>
+                <Text style={styles.refreshText}>🔄 New Set</Text>
+             </TouchableOpacity>
+             <TouchableOpacity onPress={() => scrollWords('prev')} style={[styles.arrowBtn, wordIdx === 0 && { opacity: 0.3 }]}>
+                <Text style={styles.arrowText}>←</Text>
+             </TouchableOpacity>
+             <TouchableOpacity onPress={() => scrollWords('next')} style={[styles.arrowBtn, wordIdx === 2 && { opacity: 0.3 }]}>
+                <Text style={styles.arrowText}>→</Text>
+             </TouchableOpacity>
+          </View>
+        </View>
+        <ScrollView 
+          ref={wordsScrollRef}
+          horizontal 
+          showsHorizontalScrollIndicator={Platform.OS === 'web'} 
+          style={styles.wordsScroll}
+        >
+          {dailyWord.map((item, idx) => (
+            <View key={idx} style={styles.wordCard}>
+               <View style={styles.wordHeader}>
+                  <Text style={styles.wordTitle}>{item.word}</Text>
+                  <Text style={styles.wordCefr}>{item.cefr}</Text>
+               </View>
+               <Text style={styles.wordType}>[{item.type}]</Text>
+               <Text style={styles.wordDefinition} numberOfLines={3}>{item.definition}</Text>
+               
+               <View style={styles.wordDivider} />
+               
+               <Text style={styles.exampleHeader}>Example:</Text>
+               <Text style={styles.wordExample} numberOfLines={2}>
+                 "{item.everydaySentences?.[0]?.sentence || 'Keep practicing...'}"
+               </Text>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
+
+
 
   const formatTime = (sec) => `${Math.floor(sec / 60)}:${(sec % 60).toString().padStart(2, '0')}`;
 
@@ -328,6 +414,9 @@ export default function HomeScreen({ profile, onLogout }) {
           </View>
         )}
       </View>
+
+      {/* Word of the Day Section */}
+      {renderDailyWords()}
 
       {/* Today's Task Card */}
       <View style={[styles.todayCard, { borderLeftColor: exInfo.color }]}>
@@ -444,6 +533,56 @@ export default function HomeScreen({ profile, onLogout }) {
           </ScrollView>
         </View>
       </Modal>
+
+      {/* Cultural Detail Modal */}
+      <Modal visible={showCulturalModal} animationType="fade" transparent={true}>
+        <View style={styles.culturalModalOverlay}>
+           <View style={[styles.culturalModalContent, { borderTopColor: selectedCulturalItem?.color }]}>
+              <View style={styles.culturalModalHeader}>
+                 <View>
+                    <Text style={[styles.cultType, { color: selectedCulturalItem?.color }]}>{selectedCulturalItem?.type}</Text>
+                    <Text style={styles.cultName}>{selectedCulturalItem?.name}</Text>
+                 </View>
+                 <TouchableOpacity onPress={() => setShowCulturalModal(false)} style={styles.cultClose}>
+                    <Text style={styles.cultCloseText}>✕</Text>
+                 </TouchableOpacity>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator={false}>
+                 <Text style={styles.cultText}>{selectedCulturalItem?.intro}</Text>
+
+                 <Text style={styles.cultSectionTitle}>What it Represents</Text>
+                 <Text style={styles.cultText}>{selectedCulturalItem?.represents}</Text>
+
+                 <Text style={styles.cultSectionTitle}>The Main Tradition: {selectedCulturalItem?.mainTradition?.title}</Text>
+                 <View style={[styles.traditionBox, { backgroundColor: selectedCulturalItem?.color + '11', borderColor: selectedCulturalItem?.color + '33' }]}>
+                    <Text style={[styles.traditionText, { color: selectedCulturalItem?.color }]}>{selectedCulturalItem?.mainTradition?.details}</Text>
+                 </View>
+
+                 <Text style={styles.cultSectionTitle}>{selectedCulturalItem?.customs?.title}</Text>
+                 <Text style={styles.cultText}>{selectedCulturalItem?.customs?.details}</Text>
+
+                 <Text style={styles.cultSectionTitle}>Other Celebrations</Text>
+                 <View style={styles.otherGrid}>
+                    {selectedCulturalItem?.others?.map((other, i) => (
+                      <View key={i} style={styles.otherItem}>
+                         <Text style={[styles.otherName, { color: selectedCulturalItem?.color }]}>• {other.name}</Text>
+                         <Text style={styles.otherDetail}>{other.detail}</Text>
+                      </View>
+                    ))}
+                 </View>
+
+                 <Text style={styles.cultSectionTitle}>In Simple Terms</Text>
+                 <View style={styles.simpleSummaryBox}>
+                    <Text style={styles.summaryText}>{selectedCulturalItem?.simpleTerms}</Text>
+                 </View>
+                 
+                 <View style={{ height: 40 }} />
+              </ScrollView>
+           </View>
+        </View>
+      </Modal>
+
       {showConfetti && Platform.OS !== 'web' && (
         <ConfettiCannon count={100} origin={{ x: -10, y: 0 }} autoStart={true} />
       )}
@@ -487,6 +626,71 @@ const styles = StyleSheet.create({
   missionContext: { color: '#9999CC', fontSize: 11, marginBottom: 15 },
   progressBar: { height: 6, backgroundColor: '#0F0F1A', borderRadius: 3, overflow: 'hidden' },
   progressFill: { height: '100%', backgroundColor: '#6C63FF' },
+
+  wordsSection: { marginBottom: 25 },
+  sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, marginBottom: 12 },
+  sectionLabel: { color: '#B0B0D0', fontSize: 11, fontWeight: '900', textTransform: 'uppercase' },
+  wordCountBadge: { color: '#43C6AC', fontSize: 10, fontWeight: '900' },
+  wordsScroll: { paddingLeft: 20 },
+  wordCard: { width: 280, backgroundColor: '#1C1C36', borderRadius: 24, padding: 20, marginRight: 15, borderWidth: 1, borderColor: '#43C6AC33' },
+  wordHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  wordTitle: { color: '#fff', fontSize: 20, fontWeight: '900', flex: 1 },
+  wordCefr: { color: '#43C6AC', fontSize: 10, fontWeight: '900', opacity: 0.6, marginLeft: 10 },
+  wordType: { color: '#9999CC', fontSize: 11, fontStyle: 'italic', marginBottom: 8 },
+  wordDefinition: { color: '#B0B0D0', fontSize: 13, lineHeight: 18, marginBottom: 12, height: 54 },
+  wordDivider: { height: 1, backgroundColor: '#2A2A4A', marginBottom: 12 },
+  exampleHeader: { color: '#43C6AC', fontSize: 9, fontWeight: '900', textTransform: 'uppercase', marginBottom: 4 },
+  wordExample: { color: '#9999CC', fontSize: 12, fontStyle: 'italic', lineHeight: 17 },
+
+  arrowControls: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  arrowBtn: {
+    backgroundColor: '#1C1C36',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#43C6AC33',
+  },
+  arrowControls: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  arrowBtn: {
+    backgroundColor: '#1C1C36',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#43C6AC33',
+  },
+  arrowText: {
+    color: '#43C6AC',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  refreshBadge: {
+    backgroundColor: 'rgba(67, 198, 172, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(67, 198, 172, 0.2)',
+  },
+  refreshText: {
+    color: '#43C6AC',
+    fontSize: 11,
+    fontWeight: '800',
+  },
 
   todayCard: { marginHorizontal: 16, backgroundColor: '#1A1A2E', borderRadius: 24, padding: 20, borderLeftWidth: 4, marginBottom: 20, borderWidth: 1, borderColor: '#2A2A4A' },
   todayHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
@@ -601,6 +805,141 @@ const styles = StyleSheet.create({
     color: '#9999CC',
     fontSize: 12,
     fontWeight: '700'
+  },
+
+  culturalModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    justifyContent: 'center',
+    padding: 20
+  },
+  culturalModalContent: {
+    backgroundColor: '#1C1C36',
+    borderRadius: 30,
+    padding: 25,
+    maxHeight: '80%',
+    borderTopWidth: 5,
+    borderWidth: 1,
+    borderColor: '#2A2A4A'
+  },
+  culturalModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 20
+  },
+  cultType: {
+    fontSize: 12,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    letterSpacing: 1
+  },
+  cultName: {
+    color: '#fff',
+    fontSize: 32,
+    fontWeight: '900',
+    marginTop: 4
+  },
+  cultClose: {
+    backgroundColor: '#2A2A4A',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  cultCloseText: {
+    color: '#fff',
+    fontSize: 16
+  },
+  cultSectionTitle: {
+    color: '#6C63FF',
+    fontSize: 11,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    marginTop: 20,
+    marginBottom: 8,
+    letterSpacing: 0.5
+  },
+  cultText: {
+    color: '#B0B0D0',
+    fontSize: 15,
+    lineHeight: 24
+  },
+  traditionBox: {
+    padding: 15,
+    borderRadius: 15,
+    borderWidth: 1,
+    marginTop: 5
+  },
+  traditionText: {
+    fontSize: 14,
+    fontWeight: '700',
+    fontStyle: 'italic'
+  },
+  elementsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 5
+  },
+  elementTag: {
+    backgroundColor: '#2A2A4A',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12
+  },
+  elementTagText: {
+    color: '#E0E0FF',
+    fontSize: 13,
+    fontWeight: '600'
+  },
+  infoBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    marginTop: 5
+  },
+  infoBadgeText: {
+    fontSize: 11,
+    fontWeight: '800'
+  },
+  otherGrid: {
+    marginTop: 5,
+    gap: 12
+  },
+  otherItem: {
+    backgroundColor: '#0F0F1A',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#2A2A4A'
+  },
+  otherName: {
+    fontSize: 14,
+    fontWeight: '800',
+    marginBottom: 4
+  },
+  otherDetail: {
+    color: '#9999CC',
+    fontSize: 12,
+    lineHeight: 18
+  },
+  simpleSummaryBox: {
+    backgroundColor: '#6C63FF11',
+    padding: 15,
+    borderRadius: 15,
+    borderLeftWidth: 4,
+    borderLeftColor: '#6C63FF',
+    marginTop: 5
+  },
+  summaryText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
+    fontStyle: 'italic',
+    lineHeight: 20
   }
 });
 

@@ -14,7 +14,9 @@ import VocabScreen from './src/screens/VocabScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import ShadowingScreen from './src/screens/ShadowingScreen';
+import SpeakBetterScreen from './src/screens/SpeakBetterScreen';
 import { getProfile } from './src/utils/storage';
+import SplashScreen from './src/components/SplashScreen';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -53,6 +55,7 @@ const TAB_ICONS = {
   Lab: { active: '🧪', inactive: '🧪' },
   Vocab: { active: '📚', inactive: '📚' },
   Shadow: { active: '📜', inactive: '📜' },
+  Better: { active: '💬', inactive: '💬' },
   Journal: { active: '📓', inactive: '📓' },
   Settings: { active: '⚙️', inactive: '⚙️' },
 };
@@ -61,6 +64,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profile, setProfile] = useState(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [splashComplete, setSplashComplete] = useState(false);
   const notificationListener = useRef();
 
   useEffect(() => {
@@ -125,6 +129,12 @@ export default function App() {
     } catch(e) { console.error('Logout error', e); }
   };
 
+  if (!splashComplete) {
+    return (
+      <SplashScreen onFinish={() => setSplashComplete(true)} />
+    );
+  }
+
   if (isInitializing) {
     return (
       <View style={styles.center}>
@@ -137,6 +147,7 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <LoginScreen onLogin={(user) => {
+          setSplashComplete(false); // Trigger splash again for the entrance
           setIsLoggedIn(true);
           setProfile(user);
         }} />
@@ -194,6 +205,9 @@ export default function App() {
           </Tab.Screen>
           <Tab.Screen name="Shadow">
             {(props) => <ShadowingScreen {...props} />}
+          </Tab.Screen>
+          <Tab.Screen name="Better">
+            {(props) => <SpeakBetterScreen {...props} />}
           </Tab.Screen>
           <Tab.Screen name="Journal">
             {(props) => <HistoryScreen {...props} profile={profile} />}

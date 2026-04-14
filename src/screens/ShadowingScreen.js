@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, Animated, Dimensions, 
   TouchableOpacity, StatusBar, SafeAreaView, Easing, 
 } from 'react-native';
+import * as Speech from 'expo-speech';
 import { SHADOWING_SCRIPTS } from '../data/shadowingData';
 
 const { height, width } = Dimensions.get('window');
@@ -10,38 +11,79 @@ const LINE_HEIGHT = 65; // Estimated height for font + margin
 
 export default function ShadowingScreen({ navigation }) {
   const [script, setScript] = useState(SHADOWING_SCRIPTS[0]);
-  const scrollAnim = useRef(new Animated.Value(height)).current;
+  const scrollAnim = useRef(new Animated.Value(height * 0.3)).current;
+  const currentScrollValue = useRef(height * 0.3);
   const animationRef = useRef(null);
-
-  // Convert " / " from the content into new lines
-  const displayLines = script.content.split(' / ');
-  const scrollDistance = -(displayLines.length * LINE_HEIGHT + height * 0.2);
-  const scrollDuration = displayLines.length * 3500; // ~3.5s per line for readable pace
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    startAnimation();
+    const id = scrollAnim.addListener(({ value }) => {
+      currentScrollValue.current = value;
+    });
+    return () => scrollAnim.removeListener(id);
+  }, []);
+
+  // Convert " / " from the content into new lines
+  const displayLines = ["SPEAK LOUD AND CLEAR", ...script.content.split(' / ')];
+  const scrollDistance = -(displayLines.length * LINE_HEIGHT + height * 0.2);
+  const scrollDuration = displayLines.length * 4000; // ~4s per line for slightly slower, clearer pace
+
+  useEffect(() => {
+    if (isPlaying) {
+      startAnimation();
+    } else {
+      stopAnimation();
+    }
     return () => stopAnimation();
-  }, [script]);
+  }, [isPlaying, script]);
 
   const startAnimation = () => {
-    scrollAnim.setValue(height * 0.8);
+    // Reset if we're at the very end or if it's a fresh start
+    if (currentScrollValue.current <= scrollDistance + 20) {
+      scrollAnim.setValue(height * 0.3);
+      currentScrollValue.current = height * 0.3;
+    }
+
+    const totalDist = height * 0.3 - scrollDistance;
+    const remainingDist = currentScrollValue.current - scrollDistance;
+    const remainingDuration = scrollDuration * (remainingDist / totalDist);
+
     animationRef.current = Animated.timing(scrollAnim, {
       toValue: scrollDistance, 
-      duration: scrollDuration,
+      duration: Math.max(0, remainingDuration),
       easing: Easing.linear,
       useNativeDriver: true,
     });
-    animationRef.current.start();
+    
+    animationRef.current.start(({ finished }) => {
+      if (finished) {
+        setIsPlaying(false);
+      }
+    });
+
+    // Start Text-to-Speech
+    const speechText = script.content.replace(/\//g, '.'); // Replace slashes with periods for better pacing
+    Speech.speak(speechText, {
+      rate: 0.95,  // Slightly measured for better resonance
+      pitch: 0.90, // Lower pitch to add 'bass' and depth
+      onDone: () => {
+        // Optional: extra logic when speech finishes
+      }
+    });
   };
 
   const stopAnimation = () => {
+    Speech.stop();
     if (animationRef.current) {
       animationRef.current.stop();
     }
   };
 
   const shuffleScript = () => {
+    setIsPlaying(false);
     stopAnimation();
+    scrollAnim.setValue(height * 0.3);
+    currentScrollValue.current = height * 0.3;
     const randomIndex = Math.floor(Math.random() * SHADOWING_SCRIPTS.length);
     setScript(SHADOWING_SCRIPTS[randomIndex]);
   };
@@ -57,7 +99,15 @@ export default function ShadowingScreen({ navigation }) {
         ]}
       >
         {displayLines.map((line, index) => (
-          <Text key={index} style={styles.shadowText}>{line}</Text>
+          <Text 
+            key={index} 
+            style={[
+              styles.shadowText,
+              index === 0 && styles.instructionText
+            ]}
+          >
+            {line}
+          </Text>
         ))}
       </Animated.View>
 
@@ -76,6 +126,24 @@ export default function ShadowingScreen({ navigation }) {
         </View>
 
         <View style={styles.footer}>
+          {!isPlaying ? (
+            <TouchableOpacity 
+              style={[styles.playBtn, { backgroundColor: '#4CAF50' }]} 
+              onPress={() => setIsPlaying(true)}
+            >
+              <Text style={styles.shuffleIcon}>▶️</Text>
+              <Text style={styles.shuffleText}>Start Shadowing</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity 
+              style={[styles.playBtn, { backgroundColor: '#F44336' }]} 
+              onPress={() => setIsPlaying(false)}
+            >
+              <Text style={styles.shuffleIcon}>⏸️</Text>
+              <Text style={styles.shuffleText}>Pause</Text>
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity style={styles.shuffleBtn} onPress={shuffleScript}>
             <Text style={styles.shuffleIcon}>🔄</Text>
             <Text style={styles.shuffleText}>Shuffle</Text>
@@ -90,7 +158,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
-    justifyContent: 'center',
     alignItems: 'center',
   },
   textContainer: {
@@ -106,6 +173,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     letterSpacing: 1,
+  },
+  instructionText: {
+    color: '#4CAF50',
+    fontSize: 40,
+    marginBottom: 60,
+    textTransform: 'uppercase',
+    letterSpacing: 4,
   },
   overlay: {
     position: 'absolute',
@@ -160,14 +234,28 @@ const styles = StyleSheet.create({
   },
   shuffleBtn: {
     flexDirection: 'row',
-    backgroundColor: '#1A1A1A',
-    paddingHorizontal: 25,
-    paddingVertical: 15,
-    borderRadius: 30,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
     alignItems: 'center',
     gap: 10,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: 'rgba(255,255,255,0.1)',
+    marginTop: 15,
+  },
+  playBtn: {
+    flexDirection: 'row',
+    paddingHorizontal: 35,
+    paddingVertical: 18,
+    borderRadius: 35,
+    alignItems: 'center',
+    gap: 12,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
   },
   shuffleIcon: {
     fontSize: 20,
