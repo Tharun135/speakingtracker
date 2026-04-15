@@ -1,135 +1,107 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, Dimensions, Platform, Text } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+const letters = ['E', 'c', 'h', 'o', 'L', 'a', 'b'];
 
 const SplashScreen = ({ onFinish }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const waveAnim = useRef(new Animated.Value(0)).current;
-  const lockProgress = useRef(new Animated.Value(0)).current;
   
-  const textOpacity = useRef(new Animated.Value(0)).current;
-  const textScale = useRef(new Animated.Value(0.9)).current;
-
-  // We use 5 lines to create the "multi-line" waveform look
-  const lineCount = 5;
-  const lineAnims = Array(lineCount).fill(0).map(() => useRef(new Animated.Value(0)).current);
+  // Creates an opacity and transform value for each individual letter
+  const letterOpacity = useRef(letters.map(() => new Animated.Value(0))).current;
+  const letterTranslate = useRef(letters.map(() => new Animated.Value(-30))).current;
+  
+  // Animated values for the sweeping neon underline and subtitle
+  const lineScale = useRef(new Animated.Value(0)).current;
+  const subOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Stage 1 & 2: Continuous oscillation
-    const createOscillation = (anim, delay, speed) => {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(anim, {
-            toValue: 1,
-            duration: speed,
-            useNativeDriver: true,
-          }),
-          Animated.timing(anim, {
-            toValue: -1,
-            duration: speed,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    };
-
-    lineAnims.forEach((anim, i) => {
-      createOscillation(anim, i * 150, 1500 + i * 200);
-    });
-
-    // Stage 3 & 4: The stabilize and reveal sequence
-    Animated.sequence([
-      Animated.delay(3500), // Initial wave show time
-      Animated.parallel([
-        // Stabilize lines
-        Animated.timing(lockProgress, {
+    // Build an array of parallel animations for each letter (fading in while dropping down)
+    const letterAnimations = letters.map((_, i) => {
+      return Animated.parallel([
+        Animated.timing(letterOpacity[i], {
           toValue: 1,
-          duration: 1500,
+          duration: 350,
           useNativeDriver: true,
         }),
-        // Reveal Text
-        Animated.sequence([
-          Animated.delay(500),
-          Animated.parallel([
-            Animated.timing(textOpacity, {
-              toValue: 1,
-              duration: 1000,
-              useNativeDriver: true,
-            }),
-            Animated.spring(textScale, {
-              toValue: 1,
-              friction: 8,
-              useNativeDriver: true,
-            }),
-          ])
-        ]),
-      ]),
-      Animated.delay(1500),
-      // Fade out
-      Animated.timing(fadeAnim, {
-        toValue: 0,
+        Animated.timing(letterTranslate[i], {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true, // Utilizing native driver for 60fps performance
+        })
+      ]);
+    });
+
+    Animated.sequence([
+      Animated.delay(400),
+      
+      // Stagger visually cascades the animation (120ms between each letter drop)
+      Animated.stagger(120, letterAnimations),
+      
+      // Once text is fully rendered, shoot the neon underline from the center outward
+      Animated.spring(lineScale, {
+        toValue: 1,
+        friction: 6,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+      
+      // Smoothly fade in the subtitle
+      Animated.timing(subOpacity, {
+        toValue: 1,
         duration: 800,
         useNativeDriver: true,
       }),
+      
+      Animated.delay(1200), // Hold on screen to let the user admire the bootup
+      
+      // Dissolve the entire screen to reveal the app
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      })
     ]).start(() => {
       if (onFinish) onFinish();
     });
   }, []);
 
-  const renderWaveLine = (index) => {
-    const opacity = (1 - (index / lineCount)) * 0.8;
-    const thickness = 3 - (index * 0.4);
-    
-    // Each line has a slightly different movement range
-    const translateY = Animated.multiply(
-      lineAnims[index].interpolate({
-        inputRange: [-1, 1],
-        outputRange: [-40 + index * 5, 40 - index * 5],
-      }),
-      lockProgress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [1, 0], // Reduces to 0 to stabilize
-      })
-    );
-
-    return (
-      <Animated.View 
-        key={index}
-        style={[
-          styles.waveLine,
-          {
-            height: thickness,
-            opacity: opacity,
-            backgroundColor: index % 2 === 0 ? '#00e5ff' : '#ff3ea5',
-            transform: [{ translateY }],
-            shadowColor: index % 2 === 0 ? '#00e5ff' : '#ff3ea5',
-            shadowOpacity: 0.8,
-            shadowRadius: 10,
-          }
-        ]}
-      />
-    );
-  };
-
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-      <View style={styles.content}>
-        {/* The Multiline Waveform */}
-        <View style={styles.waveWrapper}>
-          {lineAnims.map((_, i) => renderWaveLine(i))}
+      <View style={styles.logoContainer}>
+        
+        {/* Render each letter sequentially */}
+        <View style={styles.textRow}>
+          {letters.map((char, index) => (
+            <Animated.Text
+              key={index}
+              style={[
+                styles.letter,
+                // Make 'Echo' purple and 'Lab' teal for a striking two-tone design
+                index < 4 ? styles.colorPurple : styles.colorTeal,
+                {
+                  opacity: letterOpacity[index],
+                  transform: [{ translateY: letterTranslate[index] }]
+                }
+              ]}
+            >
+              {char}
+            </Animated.Text>
+          ))}
         </View>
-
-        {/* The Text that emerges from the wave center */}
-        <Animated.View style={[
-          styles.textContainer,
-          {
-            opacity: textOpacity,
-            transform: [{ scale: textScale }]
-          }
-        ]}>
-          <Text style={styles.text}>EchoLab</Text>
-        </Animated.View>
+        
+        {/* The Neon Underline that snaps into place */}
+        <Animated.View 
+          style={[
+            styles.underline,
+            { transform: [{ scaleX: lineScale }] }
+          ]} 
+        />
+        
+        {/* Subtle high-tech boot text */}
+        <Animated.Text style={[styles.subText, { opacity: subOpacity }]}>
+          INITIALIZING AUDIO LAB
+        </Animated.Text>
+        
       </View>
     </Animated.View>
   );
@@ -138,42 +110,53 @@ const SplashScreen = ({ onFinish }) => {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#0b0b2a',
+    backgroundColor: '#0A0A14', // An ultra-dark, rich background
     zIndex: 9999,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  content: {
-    width: width,
-    height: 300,
-    justifyContent: 'center',
+  logoContainer: {
     alignItems: 'center',
-  },
-  waveWrapper: {
-    ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
-    alignItems: 'center',
+    padding: 20,
   },
-  waveLine: {
-    width: width * 0.85,
-    borderRadius: 2,
-    position: 'absolute',
+  textRow: {
+    flexDirection: 'row',
+    marginBottom: 5,
   },
-  textContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    color: '#FFFFFF',
-    fontSize: 72,
+  letter: {
+    fontSize: 64,
     fontWeight: '900',
-    letterSpacing: -3,
     fontFamily: Platform.OS === 'ios' ? 'Avenir Next' : 'sans-serif-condensed',
-    textAlign: 'center',
-    textShadowColor: '#ff4df0',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 30,
   },
+  colorPurple: {
+    color: '#FFFFFF',
+    textShadowColor: '#6C63FF',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
+  },
+  colorTeal: {
+    color: '#43C6AC',
+    textShadowColor: '#43C6AC',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15,
+  },
+  underline: {
+    height: 4,
+    width: '100%',
+    backgroundColor: '#6C63FF',
+    borderRadius: 2,
+    marginBottom: 20,
+    shadowColor: '#6C63FF',
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+  },
+  subText: {
+    color: '#9999CC',
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 6, // Extremely wide letter spacing for a 'cinematic screen' feel
+  }
 });
 
 export default SplashScreen;

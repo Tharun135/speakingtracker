@@ -1,31 +1,43 @@
 import * as Speech from 'expo-speech';
 import { getAppSettings } from './storage';
 
-export const speak = async (text) => {
-  try {
+export const getPreferredVoiceOptions = async () => {
     const settings = await getAppSettings();
-    const voices = await Speech.getAvailableVoicesAsync();
+    const voices = await Speech.getAvailableVoicesAsync() || [];
     
-    // Simplistic selection: try to find a voice of the requested gender
-    // In a real app, we'd let user pick the exact voice from a list
     const options = {
       pitch: 1.0,
-      rate: 0.9, // Slightly slower for better clarity
+      rate: 0.9,
     };
 
     if (settings.voiceGender) {
-      const preferredVoice = voices.find(v => 
-        v.language.startsWith('en') && 
-        v.quality === 'Enhanced' && 
-        ((settings.voiceGender === 'masculine' && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('daniel'))) ||
-         (settings.voiceGender === 'feminine' && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('samantha'))))
-      );
+      const enVoices = voices.filter(v => (v.language || '').toLowerCase().startsWith('en'));
+      const maleNames = ['male', 'alex', 'david', 'george', 'guy', 'daniel', 'arthur', 'mark', 'google uk english male', 'us english male'];
+      const femaleNames = ['female', 'samantha', 'victoria', 'karen', 'moira', 'tessa', 'google uk english female', 'us english female'];
+
+      let preferredVoice = null;
+      if (settings.voiceGender === 'masculine') {
+         preferredVoice = enVoices.find(v => maleNames.some(name => v.name.toLowerCase().includes(name)));
+      } else {
+         preferredVoice = enVoices.find(v => femaleNames.some(name => v.name.toLowerCase().includes(name)));
+      }
+
+      if (!preferredVoice && enVoices.length > 0) {
+        preferredVoice = enVoices[0];
+      }
+
       if (preferredVoice) {
         options.voice = preferredVoice.identifier;
       }
     }
+    
+    return options;
+};
 
-    Speech.speak(text, options);
+export const speak = async (text, overrides = {}) => {
+  try {
+    const options = await getPreferredVoiceOptions();
+    Speech.speak(text, { ...options, ...overrides });
   } catch (e) {
     console.error('Speech Error', e);
   }

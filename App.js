@@ -15,6 +15,7 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import ShadowingScreen from './src/screens/ShadowingScreen';
 import SpeakBetterScreen from './src/screens/SpeakBetterScreen';
+import InterviewPrepScreen from './src/screens/InterviewPrepScreen';
 import { getProfile } from './src/utils/storage';
 import SplashScreen from './src/components/SplashScreen';
 
@@ -57,6 +58,7 @@ const TAB_ICONS = {
   Shadow: { active: '📜', inactive: '📜' },
   Better: { active: '💬', inactive: '💬' },
   Journal: { active: '📓', inactive: '📓' },
+  Interview: { active: '👔', inactive: '👔' },
   Settings: { active: '⚙️', inactive: '⚙️' },
 };
 
@@ -211,6 +213,9 @@ export default function App() {
           </Tab.Screen>
           <Tab.Screen name="Journal">
             {(props) => <HistoryScreen {...props} profile={profile} />}
+          </Tab.Screen>
+          <Tab.Screen name="Interview">
+            {(props) => <InterviewPrepScreen {...props} />}
           </Tab.Screen>
           <Tab.Screen name="Settings">
             {(props) => <SettingsScreen {...props} profile={profile} />}

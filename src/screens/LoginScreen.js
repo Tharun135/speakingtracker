@@ -9,9 +9,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
+const isDesktop = width > 768;
 
-const CARD_WIDTH = Platform.OS === 'web' ? 850 : width * 0.95;
-const CARD_HEIGHT = Platform.OS === 'web' ? 550 : height * 0.8;
+const CARD_WIDTH = isDesktop ? 850 : width * 0.95;
+const CARD_HEIGHT = isDesktop ? 550 : height * 0.8;
 
 // --- Neuromorphic Components ---
 
@@ -193,7 +194,7 @@ export default function LoginScreen({ onLogin }) {
           
           <View style={styles.panelsContainer}>
             {/* Sign In (Left) */}
-            <View style={styles.panel}>
+            <View style={[styles.panel, !isDesktop && isSignUp ? { display: 'none' } : { width: isDesktop ? '50%' : '100%' }]}>
               <Text style={styles.header}>Sign in</Text>
               <View style={styles.socialRow}>
                 <SocialIcon label="Google" color="#DB4437" />
@@ -233,11 +234,17 @@ export default function LoginScreen({ onLogin }) {
                 </View>
 
                 <NeuButton title={loading ? "..." : "SIGN IN"} onPress={handleAuth} style={styles.mainBtn} />
+                
+                {!isDesktop && (
+                  <TouchableOpacity onPress={toggleMode} style={styles.mobileSwitcher}>
+                    <Text style={styles.mobileSwitcherText}>Don't have an account? Sign Up</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
 
             {/* Sign Up (Right) */}
-            <View style={styles.panel}>
+            <View style={[styles.panel, !isDesktop && !isSignUp ? { display: 'none' } : { width: isDesktop ? '50%' : '100%' }]}>
               <Text style={styles.header}>Create Account</Text>
               <View style={styles.socialRow}>
                 <SocialIcon label="Google" color="#DB4437" />
@@ -256,12 +263,19 @@ export default function LoginScreen({ onLogin }) {
                   onSubmitEditing={handleAuth}
                 />
                 <NeuButton title={loading ? "..." : "SIGN UP"} onPress={handleAuth} style={styles.mainBtn} />
+                
+                {!isDesktop && (
+                  <TouchableOpacity onPress={toggleMode} style={styles.mobileSwitcher}>
+                    <Text style={styles.mobileSwitcherText}>Already have an account? Sign In</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           </View>
 
-          {/* Sliding Overlay */}
-          <Animated.View style={[styles.overlayContainer, { width: CARD_WIDTH / 2, transform: [{ translateX: overlayTranslateX }] }]}>
+          {/* Sliding Overlay (Desktop Only) */}
+          {isDesktop && (
+            <Animated.View style={[styles.overlayContainer, { width: CARD_WIDTH / 2, transform: [{ translateX: overlayTranslateX }] }]}>
             <View style={styles.hiddenOverflow}>
               <Animated.View style={[styles.innerContentMover, { width: CARD_WIDTH, transform: [{ translateX: innerTranslateX }] }]}>
                 
@@ -290,6 +304,7 @@ export default function LoginScreen({ onLogin }) {
               </Animated.View>
             </View>
           </Animated.View>
+          )}
 
           {error ? <Text style={styles.floatingError}>{error}</Text> : null}
         </View>
@@ -463,6 +478,8 @@ const styles = StyleSheet.create({
   },
   ghostBtnText: { color: '#FFF', fontWeight: 'bold', fontSize: 12 },
   floatingError: { position: 'absolute', bottom: 20, width: '100%', textAlign: 'center', color: '#ff4d4d', fontSize: 12, zIndex: 20 },
+  mobileSwitcher: { marginTop: 20, padding: 10 },
+  mobileSwitcherText: { color: '#6C63FF', fontSize: 13, fontWeight: '700' }
 });
 
 
