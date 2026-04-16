@@ -486,6 +486,11 @@ const getFallback = (type) => {
 
 export async function getExerciseContent(type) {
   try {
+    // For encyclopedic hardcoded factual data, bypass the LLM to provide an instant, 0-latency experience.
+    if (type === 'fundamentals' || type === 'concepts') {
+       return getFallback(type);
+    }
+    
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: 'application/json', temperature: 1.0 } });
     const seed = Math.floor(Math.random() * 100000);
     

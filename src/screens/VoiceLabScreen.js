@@ -221,7 +221,7 @@ export default function VoiceLabScreen({ profile }) {
             <LabCard emoji="💡" title="Concepts" onPress={() => loadExercises('concepts')} />
           </View>
           <View style={styles.row}>
-            <LabCard emoji="🧘" title="Reflect" onPress={() => loadExercises('reflection')} />
+            <LabCard emoji="🧠" title="Knowledge" onPress={() => loadExercises('fundamentals')} />
             <LabCard emoji="🌴" title="Culture" onPress={() => loadExercises('culture')} />
           </View>
 

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from 'react-native';
 import * as Speech from 'expo-speech';
 import { getPreferredVoiceOptions } from '../utils/speech';
-import { INTERVIEW_QUESTIONS, VOCABULARY_UPGRADES } from '../data/interviewData';
+import { INTERVIEW_QUESTIONS, VOCABULARY_UPGRADES, AGILE_GLOSSARY } from '../data/interviewData';
 
 export default function InterviewPrepScreen() {
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -153,7 +153,7 @@ export default function InterviewPrepScreen() {
               
               <View style={styles.tipsContainer}>
                 <Text style={styles.tipsTitle}>💡 Tips:</Text>
-                {item.tips.map((tip, idx) => (
+                {item.tips?.map((tip, idx) => (
                   <Text key={idx} style={styles.tipText}>• {tip}</Text>
                 ))}
               </View>
@@ -166,7 +166,7 @@ export default function InterviewPrepScreen() {
               <View style={styles.vocabContainer}>
                 <Text style={styles.vocabTitle}>Power Words:</Text>
                 <View style={styles.vocabTags}>
-                  {item.goodVocab.map((word, idx) => (
+                  {item.goodVocab?.map((word, idx) => (
                     <View key={idx} style={styles.vocabTag}>
                       <Text style={styles.vocabTagText}>{word}</Text>
                     </View>
@@ -175,6 +175,19 @@ export default function InterviewPrepScreen() {
               </View>
             </View>
           ))}
+        </View>
+
+        {/* Agile Glossary */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Agile & Scrum Glossary</Text>
+          <View style={styles.glossaryContainer}>
+            {AGILE_GLOSSARY.map((item, idx) => (
+              <View key={idx} style={styles.glossaryCard}>
+                <Text style={styles.glossaryTerm}>{item.term}</Text>
+                <Text style={styles.glossaryDesc}>{item.description}</Text>
+              </View>
+            ))}
+          </View>
         </View>
 
         {/* Vocabulary Upgrades */}
@@ -396,6 +409,27 @@ const styles = StyleSheet.create({
     color: '#43C6AC',
     fontSize: 14,
     fontWeight: '700',
+  },
+  glossaryContainer: {
+    gap: 12,
+  },
+  glossaryCard: {
+    backgroundColor: '#1C1C36',
+    borderRadius: 16,
+    padding: 16,
+    borderLeftWidth: 3,
+    borderLeftColor: '#6C63FF',
+  },
+  glossaryTerm: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  glossaryDesc: {
+    color: '#B0B0D0',
+    fontSize: 14,
+    lineHeight: 20,
   },
   backToTopBtn: {
     position: 'absolute',

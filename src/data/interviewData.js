@@ -1184,6 +1184,462 @@ export const INTERVIEW_QUESTIONS = [
     ],
     sampleAnswer: "SITUATION: We were spending hundreds of hours deeply documenting edge-case API errors, assuming developers needed them, but our customer satisfaction scores for the portal remained stagnant.\n\nTASK: I wanted to shift our strategy from assumption-based writing to data-driven writing.\n\nACTION: I integrated Google Analytics and Algolia search logs into our docs portal. The data was eye-opening: 80% of users were dropping off on the 'Authentication' page, and nobody was searching for the edge-case errors we were writing. I immediately pivoted our team's resources. We completely rewrote and expanded the Authentication guide, adding interactive code samples, and stopped writing the edge-case error pages.\n\nRESULT: Drop-off rates on the authentication page plummeted by 60%, and successful API onboarding increased visibly on the product side.",
     goodVocab: ["Assumption-based", "Data-driven", "Pivoted", "Stagnant"]
+  },
+  {
+    id: '99',
+    category: 'Tech Writing',
+    question: "What types of documentation have you created for software products?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "Technical documentation for software products usually includes several categories. Installation guides explain how to deploy the software and configure the environment. Administrator guides describe system configuration, user management, and maintenance tasks. User guides focus on how end users interact with the application. Configuration guides explain advanced settings and system parameters. Command reference guides provide detailed descriptions of CLI commands and their usage. Release notes communicate new features, improvements, and bug fixes in each version. Each document serves a specific audience and purpose, and together they provide complete product documentation.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '100',
+    category: 'Tech Writing',
+    question: "How do you simplify complex technical concepts for users?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "Simplifying technical concepts begins with understanding the system thoroughly. I review design documents, architecture diagrams, and engineering explanations before writing. Then I translate technical details into user-focused explanations. Complex processes are broken into smaller steps that are easier to follow. Visual aids such as diagrams and screenshots help illustrate workflows. Consistent terminology and simple language improve readability. The goal is to ensure users can understand the system without needing deep engineering knowledge.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '101',
+    category: 'Tech Writing',
+    question: "What is DDLC in technical writing?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "DDLC stands for Documentation Development Life Cycle. It defines the structured process used to create and maintain documentation. The first stage is planning, where documentation requirements and deliverables are identified. Next is information gathering from SMEs, product specifications, and system testing. Then comes content creation and structuring based on documentation standards. The documentation goes through review cycles with technical experts and stakeholders. After approval, the content is published in the required formats. Finally, maintenance ensures documentation stays updated with product changes.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '102',
+    category: 'Tech Writing',
+    question: "Why are style guides important in technical documentation?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "Style guides ensure consistency across documentation produced by multiple writers. They define standards for terminology, grammar, formatting, and tone. Consistent writing improves readability and user comprehension. Style guides also reduce ambiguity by standardizing how technical terms are used. They help maintain a professional and uniform documentation structure. When teams follow a style guide, documentation quality improves significantly.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '103',
+    category: 'Tech Writing',
+    question: "What experience do you have with XML-based authoring?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "XML-based authoring enables structured documentation and content reuse. In XML authoring, content is organized into structured elements rather than free-form text. This allows documentation to be reused across multiple manuals and formats. XML also supports automated publishing to HTML, PDF, and other formats. I have used XML-based tools such as Oxygen or similar editors to create structured topics. CMS platforms manage these topics and assemble them into documentation sets. This approach improves scalability and maintainability of documentation.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '104',
+    category: 'Tech Writing',
+    question: "How does a CMS help manage documentation?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "A Content Management System helps manage documentation efficiently across large projects. It stores documentation components in a centralized repository. Writers can reuse topics instead of rewriting content repeatedly. CMS systems also manage version control and track changes over time. Review workflows ensure documentation is approved before publication. Publishing pipelines can generate multiple outputs such as HTML or PDF automatically. Overall, CMS tools improve collaboration and documentation consistency.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '105',
+    category: 'Tech Writing',
+    question: "What is the role of FrameMaker in technical documentation?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "FrameMaker is widely used for creating structured and unstructured technical documentation. It is especially useful for long and complex documents such as installation guides or administrator manuals. FrameMaker supports structured content and XML workflows. It allows writers to manage cross-references, indexes, and large document structures. The tool also integrates with publishing workflows to generate multiple output formats. Because of these features, FrameMaker is commonly used in enterprise documentation environments.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '106',
+    category: 'Tech Writing',
+    question: "What challenges arise when documenting command reference guides?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "Command reference documentation requires high accuracy because users rely on it to execute system commands. Each command must include syntax, parameters, descriptions, and examples. The challenge is ensuring that the documentation matches the actual system behavior. Commands may also have optional parameters or multiple usage scenarios. Clear formatting is necessary so users can easily read command syntax. Collaboration with engineers helps validate command descriptions. Regular updates are required when commands change between software releases.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '107',
+    category: 'Tech Writing',
+    question: "How do you write effective release notes?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "Release notes should clearly communicate product updates in each version. I begin with a summary of major improvements or new features. Each feature update should describe what changed and how it benefits users. Bug fixes should be explained in simple language rather than technical jargon. Known issues may also be included if relevant. Release notes should be concise but informative. This helps users quickly understand what has changed in the new release.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '108',
+    category: 'Tech Writing',
+    question: "How do you document API functionality?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "API documentation explains how developers interact with the system programmatically. Each API endpoint should include its purpose and typical use cases. Documentation must specify request parameters, authentication methods, and response formats. Example requests and responses help developers understand integration quickly. Error codes and troubleshooting guidance should also be included. Clear API documentation improves developer productivity and reduces integration issues.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '109',
+    category: 'Tech Writing',
+    question: "How does Agile methodology affect documentation work?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "In Agile environments, documentation must evolve alongside the product. Writers participate in sprint planning to understand upcoming features. Documentation tasks should be included in the sprint backlog. Early drafts can be created during development based on design discussions. As features stabilize, documentation is updated with final workflows and screenshots. Continuous collaboration with developers ensures documentation accuracy. This approach keeps documentation synchronized with product development.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '110',
+    category: 'Tech Writing',
+    question: "What networking knowledge is useful for technical writers?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "Technical writers documenting telecom or networking systems should understand basic networking concepts. This includes IP addressing, network protocols, routing, and switching. Understanding network architecture helps writers explain system configurations accurately. Knowledge of command-line networking tools is also useful. Certifications such as CCNA provide foundational networking knowledge. This understanding helps writers communicate technical information effectively.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '111',
+    category: 'Tech Writing',
+    question: "How do you mentor junior technical writers?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "Mentoring junior writers involves guiding them in writing standards and documentation processes. I review their content and provide feedback on clarity, structure, and technical accuracy. Training sessions can introduce best practices such as task-based writing and style guide usage. Encouraging interaction with SMEs helps junior writers develop technical knowledge. Regular reviews ensure documentation quality remains consistent. Over time, mentoring builds a stronger documentation team.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '112',
+    category: 'Tech Writing',
+    question: "How do you manage a documentation team?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "Managing a documentation team requires clear planning and coordination. I assign documentation tasks based on project requirements and writer expertise. Documentation schedules should align with product release timelines. Regular meetings help track progress and address challenges. Content reviews ensure documentation meets quality standards. Collaboration tools help manage workflows and feedback. Effective leadership ensures the team delivers documentation on time.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '113',
+    category: 'Tech Writing',
+    question: "How would you improve documentation processes through automation?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "Automation can significantly improve documentation efficiency. CI/CD pipelines can automatically generate documentation builds when content changes. Automated validation tools can detect broken links or formatting issues. Content reuse frameworks reduce duplication and maintenance effort. Templates and style checkers help maintain consistency. Automation reduces manual effort and improves documentation reliability. Over time, these improvements streamline the documentation process.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '114',
+    category: 'Tech Writing',
+    question: "How do you ensure documentation quality?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "Documentation quality depends on accuracy, clarity, and consistency. I ensure accuracy by validating information with SMEs and testing workflows when possible. Clarity is achieved by using simple language and structured formatting. Style guides help maintain consistent terminology and writing style. Review cycles allow stakeholders to verify content before publication. Continuous feedback from users helps improve documentation further.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '115',
+    category: 'Tech Writing',
+    question: "Why is technical aptitude important for a technical writer?",
+    tips: [
+      "Review the question carefully and structure your answer.",
+      "Highlight your practical experience directly related to this.",
+      "Summarize with a clear benefit."
+    ],
+    sampleAnswer: "Technical aptitude allows writers to understand complex systems quickly. It helps them interpret engineering documentation and system behavior accurately. Writers with strong technical understanding can ask better questions during SME discussions. This improves the quality of documentation. Technical aptitude also helps writers identify potential usability issues. Overall, it enables writers to create clearer and more accurate documentation.",
+    goodVocab: ["Process", "Structure", "Maintainability", "Accuracy"]
+  },
+  {
+    id: '116',
+    category: 'API',
+    question: "How do you document REST APIs effectively?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "Effective REST API documentation should help developers quickly understand how to interact with the system. I begin by explaining the purpose of the API and the use cases it supports. Each endpoint should clearly describe the HTTP method, endpoint URL, required parameters, and authentication requirements. Request and response examples help developers understand how the API behaves. Error codes and troubleshooting information should also be documented. Consistency in structure across endpoints improves readability. When possible, API documentation should be generated from OpenAPI specifications to ensure accuracy.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '117',
+    category: 'API',
+    question: "What is REST and why is it commonly used in APIs?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "REST stands for Representational State Transfer and is an architectural style used for designing web APIs. REST APIs use standard HTTP methods such as GET, POST, PUT, and DELETE to perform operations on resources. Resources are typically represented using URLs. Responses are often formatted in JSON because it is lightweight and easy to process. REST APIs are widely used because they are simple, scalable, and compatible with web technologies. They allow systems to communicate over standard HTTP protocols.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '118',
+    category: 'API',
+    question: "What is OpenAPI (Swagger)?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "OpenAPI is a specification used to describe REST APIs in a machine-readable format. It defines API endpoints, parameters, request structures, and response formats. Tools such as Swagger UI can automatically generate interactive API documentation from OpenAPI definitions. This allows developers to explore APIs and test endpoints directly from the documentation. OpenAPI also ensures consistency between API implementation and documentation. It is widely used in modern API-driven systems.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '119',
+    category: 'API',
+    question: "How does JSON work in API communication?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "JSON, or JavaScript Object Notation, is a lightweight data format used for exchanging data between systems. In APIs, JSON is commonly used to send requests and receive responses. It represents data using key-value pairs and structured objects. Because JSON is easy to read and parse, it is widely supported across programming languages. API documentation should clearly describe JSON request bodies and response structures. Example payloads help developers understand how to format requests correctly.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '120',
+    category: 'API',
+    question: "What elements must every API endpoint documentation include?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "Each API endpoint should include several essential elements. The endpoint URL identifies the resource being accessed. The HTTP method indicates the type of operation being performed. Authentication requirements explain how the request is authorized. Parameters describe the input values required by the API. The request body shows how data should be formatted. Response examples demonstrate expected outputs. Error responses help developers understand failure scenarios.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '121',
+    category: 'API',
+    question: "How would you structure developer documentation for an API platform?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "Developer documentation should be organized in a logical structure that helps developers start quickly. I usually begin with an introduction explaining the API platform and its capabilities. Next, I include authentication instructions and environment setup guidance. A quick-start guide helps developers make their first API request. Detailed endpoint documentation explains how each API function works. Code examples in multiple languages help developers integrate faster. Finally, troubleshooting and FAQs address common issues.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '122',
+    category: 'API',
+    question: "How do you ensure API documentation stays synchronized with the API?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "API documentation can easily become outdated if it is maintained manually. To prevent this, documentation should be generated from API specifications whenever possible. OpenAPI specifications allow documentation to be automatically updated when endpoints change. Continuous integration pipelines can rebuild documentation when API definitions are updated. Close collaboration with engineering teams ensures documentation updates are included in development workflows. Regular reviews help detect inconsistencies.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '123',
+    category: 'API',
+    question: "What challenges arise when documenting APIs?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "API documentation often involves complex technical details that can be difficult for developers to understand quickly. Endpoints may change frequently during development. APIs may also depend on authentication mechanisms or external services. Another challenge is ensuring examples remain accurate as the API evolves. Documentation must also address different developer skill levels. Maintaining clarity while preserving technical accuracy requires careful structuring.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '124',
+    category: 'API',
+    question: "How do you document authentication mechanisms for APIs?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "Authentication documentation should clearly explain how clients obtain and use authentication tokens. The documentation should describe the authentication method such as API keys, OAuth tokens, or JWT tokens. Step-by-step instructions should show how to authenticate requests. Example headers and token usage help developers implement authentication correctly. Security considerations should also be explained. Clear documentation reduces integration issues.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '125',
+    category: 'API',
+    question: "How do you provide code examples in API documentation?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "Code examples help developers understand how to call APIs using real programming languages. I usually include examples in commonly used languages such as Python, JavaScript, or cURL. Each example should show how to construct the request and handle the response. Examples should be simple but realistic. Providing multiple language examples increases accessibility for different developer communities. Code samples should be tested to ensure they work correctly.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '126',
+    category: 'API',
+    question: "What is the difference between REST and SOAP APIs?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "REST is an architectural style that uses HTTP methods and typically returns JSON responses. SOAP is a protocol that uses XML-based messaging and strict standards. REST APIs are generally simpler and more lightweight than SOAP APIs. REST is widely used in modern web applications because it is easier to integrate. SOAP is still used in some enterprise systems that require strict security or transactional standards.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '127',
+    category: 'API',
+    question: "What are HTTP status codes and why are they important in APIs?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "HTTP status codes indicate the result of an API request. For example, a 200 status code indicates a successful request. A 400 code indicates a client error such as an invalid request. A 401 code indicates authentication failure. A 500 code indicates a server error. API documentation should clearly describe possible status codes and their meanings. This helps developers troubleshoot issues quickly.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '128',
+    category: 'API',
+    question: "How do you document API rate limits?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "Rate limiting controls how many API requests clients can make within a specific time period. Documentation should clearly explain the request limits and time windows. It should also describe what happens when limits are exceeded. Example error responses help developers handle rate limit violations. Providing best practices helps developers design efficient integrations.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '129',
+    category: 'API',
+    question: "What is pagination in APIs?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "Pagination is used when APIs return large datasets. Instead of returning all results at once, the API returns smaller pages of data. Parameters such as page number or cursor values control pagination. Documentation should explain how pagination works and how developers retrieve additional pages. This prevents performance issues and improves scalability.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '130',
+    category: 'API',
+    question: "What are webhooks and how would you document them?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "Webhooks allow systems to send real-time notifications when specific events occur. Instead of polling the API repeatedly, clients receive automatic event updates. Documentation should explain the events available, payload structure, and security requirements. Example webhook payloads help developers understand the data they will receive. Instructions should also explain how to configure webhook endpoints.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '131',
+    category: 'API',
+    question: "What is idempotency in APIs?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "Idempotency means that making the same API request multiple times produces the same result. For example, deleting a resource repeatedly should produce the same outcome after the first request. Idempotent operations help ensure reliability in distributed systems. API documentation should clarify which operations are idempotent. This helps developers design safe retry mechanisms.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '132',
+    category: 'API',
+    question: "What is API versioning?",
+    tips: [
+      "Define exactly what the term or process means clearly.",
+      "Give a specific example of how it applies to API documentation.",
+      "Finish by stating why it benefits the developer or system."
+    ],
+    sampleAnswer: "API versioning allows developers to maintain compatibility while introducing new features. Version numbers are typically included in the API URL or headers. Documentation should clearly indicate which endpoints belong to each version. Deprecation policies should also be documented. Versioning ensures developers can migrate to new APIs smoothly.",
+    goodVocab: ["REST", "Endpoints", "OpenAPI", "JSON"]
+  },
+  {
+    id: '133',
+    category: 'Behavioral',
+    question: "In your experience, what does success look like in the day-to-day life of a technical writer?",
+    tips: [
+      "Focus on continuous learning and daily incremental progress.",
+      "Mention small challenges like speaking up in meetings or clarifying features with SMEs.",
+      "Emphasize that success is when today's knowledge exceeds yesterday's."
+    ],
+    sampleAnswer: "In my view, success in the day-to-day life of a technical writer means continuous learning and small but meaningful progress every day. Each day should present at least one challenge, even if it is small. For example, presenting something to the team, asking a thoughtful question in a meeting, or speaking with a colleague or SME to better understand a feature. These small actions help improve both technical knowledge and communication skills. A day should not pass exactly the same as the previous one. If I end the day having learned something new about the product, the users, or the documentation process, I consider that a successful day. Over time, these small improvements compound and make you a stronger technical writer.",
+    goodVocab: ["Continuous learning", "Meaningful progress", "SME interaction", "Compound"]
+  },
+  {
+    id: '134',
+    category: 'Agile',
+    question: "What is your experience working in an Agile/Scrum environment?",
+    tips: [
+      "Highlight your participation in Scrum ceremonies like standups and reviews.",
+      "Explain how you align your documentation tasks with the sprint cycle.",
+      "Mention collaboration with Product Owners and Developers."
+    ],
+    sampleAnswer: "I have extensive experience working in Agile environments, specifically using the Scrum model. I participate in daily standups to sync with developers and stay ahead of blockers. During sprint planning, I identify documentation requirements for the upcoming sprint and track them as backlog items. At the end of the sprint, I ensure that all documentation meets the 'Definition of Done' before the release.",
+    goodVocab: ["Sprint cycle", "Backlog tracking", "Scrum ceremonies", "Daily sync"]
+  },
+  {
+    id: '135',
+    category: 'Agile',
+    question: "How do you handle documentation updates when a feature changes mid-sprint?",
+    tips: [
+      "Emphasize agility and communication with developers.",
+      "Mention using modular documentation to make quick updates easier.",
+      "Discuss how you prioritize critical documentation over nice-to-haves during shifts."
+    ],
+    sampleAnswer: "When features change mid-sprint, I prioritize open communication with the developers and Product Owner to understand the scope of the change. I rely on modular content structures, which allow me to update specific topics without rewriting entire manuals. This agility ensures that the documentation evolves alongside the software, even under tight deadlines, while maintaining technical accuracy.",
+    goodVocab: ["Modular content", "Agility", "Scope adjustment", "Mid-sprint shift"]
+  },
+  {
+    id: '136',
+    category: 'Agile',
+    question: "What is the role of a technical writer in a Scrum team?",
+    tips: [
+      "Describe the writer as a bridge between technical complexity and user needs.",
+      "Mention participating in defining 'Definition of Done'.",
+      "Explain how you support the team by identifying usability gaps early."
+    ],
+    sampleAnswer: "As a technical writer in a Scrum team, my role is to act as a bridge between the engineering output and the user’s needs. I don't just write; I contribute to the 'Definition of Done' to ensure no feature is released without docs. I also attend sprint reviews to catch UI changes early and provide feedback on usability, helping the team deliver a more polished product each iteration.",
+    goodVocab: ["Bridge", "Definition of Done", "Iteration", "Usability feedback"]
   }
 ];
 
@@ -1195,4 +1651,26 @@ export const VOCABULARY_UPGRADES = [
   { basic: "Fixed", upgrade: "Resolved / Troubleshot / Remediated" },
   { basic: "Wrote", upgrade: "Authored / Documented / Formulated" },
   { basic: "Looked at", upgrade: "Reviewed / Evaluated / Analyzed" }
+];
+
+export const AGILE_GLOSSARY = [
+  { term: "Scrum", description: "An iterative framework for developing complex products. It is the most widely used agile methodology." },
+  { term: "Sprint", description: "A time-boxed iteration (typically 1-4 weeks) during which a 'Done', useable, and potentially releasable product increment is created." },
+  { term: "Product Owner", description: "The person responsible for maximizing product value and managing the Product Backlog. They represent the business and customer." },
+  { term: "Scrum Master", description: "A servant-leader who helps the team follow Scrum theory, practices, and rules. They remove impediments to progress." },
+  { term: "Developers", description: "The people in the Scrum Team that are committed to creating any aspect of a useable Increment each Sprint." },
+  { term: "Product Backlog", description: "An emergent, ordered list of what is needed to improve the product. It is the single source of work for the Scrum Team." },
+  { term: "Sprint Backlog", description: "The plan by and for the Developers, consisting of the Sprint Goal, the set of Product Backlog items selected for the Sprint, and an actionable plan." },
+  { term: "Daily Scrum", description: "A 15-minute event for the Developers to inspect progress toward the Sprint Goal and adapt the Sprint Backlog as necessary." },
+  { term: "Sprint Planning", description: "The event where the team collaboratively plans the work to be performed in the upcoming Sprint." },
+  { term: "Sprint Review", description: "An event held at the end of the Sprint to inspect the outcome of the Sprint and determine future adaptations." },
+  { term: "Sprint Retrospective", description: "The final event of a Sprint where the team plans ways to increase quality and effectiveness for the next Sprint." },
+  { term: "Increment", description: "A concrete stepping stone toward the Product Goal. Each Increment is additive to all prior Increments and thoroughly verified." },
+  { term: "Definition of Done", description: "A formal description of the state of the Increment when it meets the quality measures required for the product." },
+  { term: "User Story", description: "A lightweight way to capture requirements from the end-user's perspective: 'As a [user], I want to [action] so that [benefit].'" },
+  { term: "Acceptance Criteria", description: "The specific requirements that a product must meet to be accepted by a user or customer." },
+  { term: "Epic", description: "A large user story that can be broken down into smaller, more manageable stories." },
+  { term: "Velocity", description: "A measure of the amount of work a team can tackle during a single Sprint (based on past performance)." },
+  { term: "Burndown Chart", description: "A visual tool showing how much work is left versus time, helping the team monitor their progress." },
+  { term: "Blocker / Impediment", description: "Anything that stops a team member from making progress on their task." }
 ];
