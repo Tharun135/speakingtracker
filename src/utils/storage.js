@@ -277,6 +277,8 @@ export const saveToJournal = async (analysis, audioUri) => {
       transcript: analysis.transcript,
       score: analysis.fluencyScore,
       pronunciation: analysis.pronunciation,
+      metrics: analysis.metrics,
+      coaching: analysis.coaching,
       audioPath: newPath
     };
     

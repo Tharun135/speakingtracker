@@ -176,8 +176,12 @@ export default function VoiceLabScreen({ profile }) {
       setSimRecording(null);
       setIsTyping(true);
       const result = await analyzeRecording(uri);
+      
       if (result?.transcript) {
         setCurrentInput(result.transcript);
+        // Save to journal for history tracking
+        await saveToJournal(result, uri);
+        await addXP(30);
       }
     } catch (e) {
       console.error(e);

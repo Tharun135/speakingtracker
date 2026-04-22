@@ -1,268 +1,287 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  View, Text, StyleSheet, Animated, Dimensions, 
-  TouchableOpacity, StatusBar, SafeAreaView, Easing, 
+  View, Text, StyleSheet, ScrollView, Dimensions, 
+  TouchableOpacity, StatusBar, SafeAreaView, ActivityIndicator,
+  Animated, Platform, Alert
 } from 'react-native';
+import { Audio } from 'expo-av';
 import * as Speech from 'expo-speech';
-import { SHADOWING_SCRIPTS } from '../data/shadowingData';
+import { SPEAKER_STYLES } from '../data/styleGymData';
+import { analyzeRecording } from '../utils/gemini';
+import { addXP } from '../utils/storage';
 
-const { height, width } = Dimensions.get('window');
-const LINE_HEIGHT = 65; // Estimated height for font + margin
+const { width } = Dimensions.get('window');
 
 export default function ShadowingScreen({ navigation }) {
-  const [script, setScript] = useState(SHADOWING_SCRIPTS[0]);
-  const scrollAnim = useRef(new Animated.Value(height * 0.3)).current;
-  const currentScrollValue = useRef(height * 0.3);
-  const animationRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [activeStyle, setActiveStyle] = useState(SPEAKER_STYLES[0]);
+  const [activeScript, setActiveScript] = useState(SPEAKER_STYLES[0].scripts[0]);
+  const [recording, setRecording] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [report, setReport] = useState(null);
+  const [isPlayingRef, setIsPlayingRef] = useState(false);
+
+  // Animation for metrics
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const id = scrollAnim.addListener(({ value }) => {
-      currentScrollValue.current = value;
-    });
-    return () => scrollAnim.removeListener(id);
-  }, []);
-
-  // Convert " / " from the content into new lines
-  const displayLines = ["SPEAK LOUD AND CLEAR", ...script.content.split(' / ')];
-  const scrollDistance = -(displayLines.length * LINE_HEIGHT + height * 0.2);
-  const scrollDuration = displayLines.length * 4000; // ~4s per line for slightly slower, clearer pace
-
-  useEffect(() => {
-    if (isPlaying) {
-      startAnimation();
-    } else {
-      stopAnimation();
+    if (report) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }).start();
     }
-    return () => stopAnimation();
-  }, [isPlaying, script]);
+  }, [report]);
 
-  const startAnimation = () => {
-    // Reset if we're at the very end or if it's a fresh start
-    if (currentScrollValue.current <= scrollDistance + 20) {
-      scrollAnim.setValue(height * 0.3);
-      currentScrollValue.current = height * 0.3;
-    }
-
-    const totalDist = height * 0.3 - scrollDistance;
-    const remainingDist = currentScrollValue.current - scrollDistance;
-    const remainingDuration = scrollDuration * (remainingDist / totalDist);
-
-    animationRef.current = Animated.timing(scrollAnim, {
-      toValue: scrollDistance, 
-      duration: Math.max(0, remainingDuration),
-      easing: Easing.linear,
-      useNativeDriver: true,
-    });
-    
-    animationRef.current.start(({ finished }) => {
-      if (finished) {
-        setIsPlaying(false);
+  const toggleRecording = async () => {
+    try {
+      if (isRecording) {
+        setIsRecording(false);
+        await recording.stopAndUnloadAsync();
+        const uri = recording.getURI();
+        processAnalysis(uri);
+      } else {
+        const { status } = await Audio.requestPermissionsAsync();
+        if (status !== 'granted') return;
+        await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+        const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+        setRecording(recording);
+        setIsRecording(true);
+        setReport(null);
+        fadeAnim.setValue(0);
       }
-    });
-
-    // Start Text-to-Speech
-    const speechText = script.content.replace(/\//g, '.'); // Replace slashes with periods for better pacing
-    Speech.speak(speechText, {
-      rate: 0.95,  // Slightly measured for better resonance
-      pitch: 0.90, // Lower pitch to add 'bass' and depth
-      onDone: () => {
-        // Optional: extra logic when speech finishes
-      }
-    });
-  };
-
-  const stopAnimation = () => {
-    Speech.stop();
-    if (animationRef.current) {
-      animationRef.current.stop();
+    } catch (e) {
+      console.error(e);
+      setIsRecording(false);
     }
   };
 
-  const shuffleScript = () => {
-    setIsPlaying(false);
-    stopAnimation();
-    scrollAnim.setValue(height * 0.3);
-    currentScrollValue.current = height * 0.3;
-    const randomIndex = Math.floor(Math.random() * SHADOWING_SCRIPTS.length);
-    setScript(SHADOWING_SCRIPTS[randomIndex]);
+  const processAnalysis = async (uri) => {
+    setAnalyzing(true);
+    try {
+      // Analyze user against the active speaker profile
+      const result = await analyzeRecording(uri, activeStyle.profile);
+      setReport(result);
+      await addXP(25);
+    } catch (e) {
+      Alert.alert("Coach is Offline", "Couldn't analyze your speech. Check connection.");
+    } finally {
+      setAnalyzing(false);
+    }
   };
+
+  const playReference = () => {
+    if (isPlayingRef) {
+      Speech.stop();
+      setIsPlayingRef(false);
+      return;
+    }
+    setIsPlayingRef(true);
+    // Simulate podcast audio using TTS with style-matched settings
+    Speech.speak(activeScript.content.replace(/\//g, ''), {
+      rate: activeStyle.profile.wpm / 150, // Normalized
+      pitch: activeStyle.id === 'ENTREPRENEUR' ? 1.1 : 0.9,
+      onDone: () => setIsPlayingRef(false),
+      onError: () => setIsPlayingRef(false)
+    });
+  };
+
+  const renderMetric = (label, value, icon) => (
+    <View style={styles.metricCard}>
+      <Text style={styles.metricIcon}>{icon}</Text>
+      <Text style={styles.metricVal}>{value}</Text>
+      <Text style={styles.metricLabel}>{label}</Text>
+    </View>
+  );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      
-      <Animated.View 
-        style={[
-          styles.textContainer, 
-          { transform: [{ translateY: scrollAnim }] }
-        ]}
-      >
-        {displayLines.map((line, index) => (
-          <Text 
-            key={index} 
-            style={[
-              styles.shadowText,
-              index === 0 && styles.instructionText
-            ]}
-          >
-            {line}
-          </Text>
-        ))}
-      </Animated.View>
-
-      <SafeAreaView style={styles.overlay}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        
         <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backBtn} 
-            onPress={() => navigation.navigate('Today')}
-          >
-            <Text style={styles.backIcon}>←</Text>
-            <Text style={styles.backText}>Back</Text>
-          </TouchableOpacity>
-          <View style={styles.difficultyBadge}>
-             <Text style={styles.difficultyText}>{script.difficulty}</Text>
-          </View>
+           <Text style={styles.title}>Style Gym</Text>
+           <Text style={styles.subtitle}>Master professional delivery</Text>
         </View>
 
-        <View style={styles.footer}>
-          {!isPlaying ? (
+        {/* Style Selection */}
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          style={styles.styleList}
+          contentContainerStyle={{ gap: 12, paddingRight: 20 }}
+        >
+          {SPEAKER_STYLES.map((style) => (
             <TouchableOpacity 
-              style={[styles.playBtn, { backgroundColor: '#4CAF50' }]} 
-              onPress={() => setIsPlaying(true)}
+              key={style.id} 
+              onPress={() => {
+                setActiveStyle(style);
+                setActiveScript(style.scripts[0]);
+                setReport(null);
+              }}
+              style={[styles.styleCard, activeStyle.id === style.id && styles.activeStyleCard]}
             >
-              <Text style={styles.shuffleIcon}>▶️</Text>
-              <Text style={styles.shuffleText}>Start Shadowing</Text>
+              <Text style={styles.styleEmoji}>{style.emoji}</Text>
+              <Text style={[styles.styleName, activeStyle.id === style.id && styles.activeStyleName]}>{style.name}</Text>
             </TouchableOpacity>
-          ) : (
-            <TouchableOpacity 
-              style={[styles.playBtn, { backgroundColor: '#F44336' }]} 
-              onPress={() => setIsPlaying(false)}
-            >
-              <Text style={styles.shuffleIcon}>⏸️</Text>
-              <Text style={styles.shuffleText}>Pause</Text>
-            </TouchableOpacity>
-          )}
+          ))}
+        </ScrollView>
 
-          <TouchableOpacity style={styles.shuffleBtn} onPress={shuffleScript}>
-            <Text style={styles.shuffleIcon}>🔄</Text>
-            <Text style={styles.shuffleText}>Shuffle</Text>
-          </TouchableOpacity>
+        {/* Active Style Profile Info */}
+        <View style={styles.profileBox}>
+           <Text style={styles.profileTag}>TARGET STYLE: {activeStyle.profile.vibe}</Text>
+           <Text style={styles.profileDesc}>{activeStyle.description}</Text>
+           <View style={styles.profileStats}>
+              <Text style={styles.profileStat}>🎯 {activeStyle.profile.wpm} WPM</Text>
+              <Text style={styles.profileStat}>📉 {activeStyle.profile.pitchRange} range</Text>
+           </View>
         </View>
-      </SafeAreaView>
-    </View>
+
+        {/* Script Area */}
+        <View style={styles.scriptArea}>
+           <View style={styles.scriptHeader}>
+              <Text style={styles.scriptBadge}>PRACTICE SCRIPT</Text>
+              <TouchableOpacity onPress={playReference} style={[styles.listenBtn, isPlayingRef && styles.listenBtnActive]}>
+                 <Text style={styles.listenText}>{isPlayingRef ? '⏹ Stop' : '🔊 Listen'}</Text>
+              </TouchableOpacity>
+           </View>
+           <Text style={styles.scriptContent}>{activeScript.content}</Text>
+           {activeScript.instruction && (
+             <View style={styles.tipBox}>
+                <Text style={styles.tipText}>💡 {activeScript.instruction}</Text>
+             </View>
+           )}
+        </View>
+
+        {/* Action Button */}
+        <TouchableOpacity 
+          onPress={toggleRecording} 
+          style={[styles.mainBtn, isRecording && styles.mainBtnActive]}
+          disabled={analyzing}
+        >
+           {analyzing ? (
+             <ActivityIndicator color="#fff" />
+           ) : (
+             <Text style={styles.mainBtnText}>{isRecording ? '⏹ FINISH DRILL' : '🎙️ START DRILL'}</Text>
+           )}
+        </TouchableOpacity>
+
+        {/* Analytics Report */}
+        {report && (
+          <Animated.View style={[styles.reportContainer, { opacity: fadeAnim }]}>
+            <Text style={styles.reportHeader}>Gym Analytics</Text>
+            
+            <View style={styles.metricsRow}>
+              {renderMetric('Tempo', report.metrics?.wpm || '---', '⚡')}
+              {renderMetric('Pause', report.metrics?.pausePattern || '---', '⏸')}
+              {renderMetric('Pitch', `${report.metrics?.pitchVariation || 0}/10`, '〽️')}
+            </View>
+
+            {/* Simple Visualizer Mockup */}
+            <View style={styles.vizContainer}>
+              <Text style={styles.vizLabel}>PITCH VARIATION MAP</Text>
+              <View style={styles.vizBars}>
+                {[...Array(15)].map((_, i) => (
+                  <View 
+                    key={i} 
+                    style={[
+                      styles.vizBar, 
+                      { height: 10 + Math.random() * (report.metrics?.pitchVariation * 4 || 10) }
+                    ]} 
+                  />
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.coachCard}>
+               <Text style={styles.coachTag}>COACH'S NOTES</Text>
+               <Text style={styles.coachSummary}>{report.coaching?.speedFeedback || report.coachingTip}</Text>
+               
+               {report.coaching?.targetedTips?.map((tip, i) => (
+                 <View key={i} style={styles.tipItem}>
+                    <Text style={styles.tipDot}>•</Text>
+                    <Text style={styles.tipLine}>{tip}</Text>
+                 </View>
+               ))}
+            </View>
+
+            <View style={styles.transCard}>
+               <Text style={styles.transLabel}>YOUR TRANSCRIPT</Text>
+               <Text style={styles.transText}>"{report.transcript}"</Text>
+            </View>
+          </Animated.View>
+        )}
+
+        <View style={{ height: 100 }} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-    alignItems: 'center',
+  container: { flex: 1, backgroundColor: '#0F0F1A' },
+  scroll: { padding: 20 },
+  header: { marginBottom: 25 },
+  title: { fontSize: 32, fontWeight: '900', color: '#fff', letterSpacing: -1 },
+  subtitle: { fontSize: 14, color: '#6C63FF', fontWeight: '800', textTransform: 'uppercase', marginTop: 4 },
+  
+  styleList: { marginBottom: 20 },
+  styleCard: { 
+    backgroundColor: '#1A1A2E', paddingHorizontal: 20, paddingVertical: 15, 
+    borderRadius: 20, alignItems: 'center', borderWidth: 1, borderColor: '#2A2A4A', width: 140
   },
-  textContainer: {
-    width: '100%',
-    maxWidth: 600, // Limit width for better eye tracking
-    paddingHorizontal: 50,
-    alignItems: 'center',
+  activeStyleCard: { backgroundColor: '#6C63FF22', borderColor: '#6C63FF' },
+  styleEmoji: { fontSize: 24, marginBottom: 8 },
+  styleName: { color: '#B0B0D0', fontWeight: '800', fontSize: 13, textAlign: 'center' },
+  activeStyleName: { color: '#fff' },
+
+  profileBox: { backgroundColor: '#1A1A2E', borderRadius: 24, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: '#2A2A4A' },
+  profileTag: { color: '#6C63FF', fontSize: 10, fontWeight: '900', marginBottom: 12, letterSpacing: 1 },
+  profileDesc: { color: '#B0B0D0', fontSize: 14, lineHeight: 22, marginBottom: 15 },
+  profileStats: { flexDirection: 'row', gap: 15 },
+  profileStat: { color: '#fff', fontSize: 12, fontWeight: '700', backgroundColor: '#0F0F1A', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
+
+  scriptArea: { backgroundColor: '#1C1C36', borderRadius: 24, padding: 25, marginBottom: 25, borderWidth: 1, borderColor: '#6C63FF33' },
+  scriptHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  scriptBadge: { color: '#43C6AC', fontSize: 10, fontWeight: '900', letterSpacing: 1 },
+  listenBtn: { backgroundColor: '#1A1A2E', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1.5, borderColor: '#6C63FF' },
+  listenBtnActive: { backgroundColor: '#FF658422', borderColor: '#FF6584' },
+  listenText: { color: '#fff', fontWeight: '800', fontSize: 12 },
+  scriptContent: { color: '#fff', fontSize: 22, fontWeight: '700', lineHeight: 36, textAlign: 'center' },
+  tipBox: { marginTop: 20, padding: 12, backgroundColor: '#0F0F1A', borderRadius: 15 },
+  tipText: { color: '#6C63FF', fontSize: 13, fontWeight: '600', fontStyle: 'italic', textAlign: 'center' },
+
+  mainBtn: { 
+    backgroundColor: '#6C63FF', paddingVertical: 20, borderRadius: 25, 
+    alignItems: 'center', shadowColor: '#6C63FF', shadowOffset: { width: 0, height: 10 }, 
+    shadowOpacity: 0.3, shadowRadius: 20, elevation: 10, marginBottom: 30
   },
-  shadowText: {
-    color: '#fff',
-    fontSize: 32,
-    fontWeight: '900',
-    textAlign: 'center',
-    marginBottom: 20,
-    letterSpacing: 1,
-  },
-  instructionText: {
-    color: '#4CAF50',
-    fontSize: 40,
-    marginBottom: 60,
-    textTransform: 'uppercase',
-    letterSpacing: 4,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'space-between',
-  },
-  header: {
-    padding: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  backBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-  },
-  backIcon: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  backText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  difficultyBadge: {
-    backgroundColor: '#333',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#444',
-  },
-  difficultyText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-  },
-  footer: {
-    paddingBottom: 110, // Avoid tab bar
-    alignItems: 'center',
-  },
-  shuffleBtn: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    alignItems: 'center',
-    gap: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    marginTop: 15,
-  },
-  playBtn: {
-    flexDirection: 'row',
-    paddingHorizontal: 35,
-    paddingVertical: 18,
-    borderRadius: 35,
-    alignItems: 'center',
-    gap: 12,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-  },
-  shuffleIcon: {
-    fontSize: 20,
-  },
-  shuffleText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  mainBtnActive: { backgroundColor: '#FF6584' },
+  mainBtnText: { color: '#fff', fontSize: 16, fontWeight: '900', letterSpacing: 1 },
+
+  reportContainer: { marginTop: 10 },
+  reportHeader: { color: '#fff', fontSize: 20, fontWeight: '900', marginBottom: 20 },
+  metricsRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 10, marginBottom: 20 },
+  metricCard: { flex: 1, backgroundColor: '#1A1A2E', borderRadius: 20, padding: 15, alignItems: 'center', borderWidth: 1, borderColor: '#2A2A4A' },
+  metricIcon: { fontSize: 20, marginBottom: 8 },
+  metricVal: { color: '#fff', fontSize: 14, fontWeight: '900', marginBottom: 4 },
+  metricLabel: { color: '#444466', fontSize: 9, fontWeight: '900', textTransform: 'uppercase' },
+
+  vizContainer: { backgroundColor: '#1A1A2E', borderRadius: 20, padding: 15, marginBottom: 20, borderWidth: 1, borderColor: '#2A2A4A' },
+  vizLabel: { color: '#444466', fontSize: 8, fontWeight: '900', marginBottom: 12, letterSpacing: 1 },
+  vizBars: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', gap: 4, height: 50 },
+  vizBar: { width: 4, backgroundColor: '#6C63FF', borderRadius: 2 },
+
+  coachCard: { backgroundColor: '#43C6AC11', borderRadius: 24, padding: 20, borderWidth: 1, borderColor: '#43C6AC33', marginBottom: 20 },
+  coachTag: { color: '#43C6AC', fontSize: 10, fontWeight: '900', marginBottom: 12, letterSpacing: 1 },
+  coachSummary: { color: '#fff', fontSize: 15, fontWeight: '700', lineHeight: 22, marginBottom: 15 },
+  tipItem: { flexDirection: 'row', gap: 10, marginBottom: 6 },
+  tipDot: { color: '#43C6AC', fontWeight: '900' },
+  tipLine: { color: '#B0B0D0', fontSize: 13, flex: 1 },
+
+  transCard: { backgroundColor: '#1A1A2E', borderRadius: 20, padding: 18, borderWidth: 1, borderColor: '#2A2A4A' },
+  transLabel: { color: '#444466', fontSize: 9, fontWeight: '900', marginBottom: 10 },
+  transText: { color: '#B0B0D0', fontSize: 14, fontStyle: 'italic', lineHeight: 22 }
 });
+

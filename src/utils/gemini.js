@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as FileSystem from 'expo-file-system';
 
-const API_KEY = 'AIzaSyBp5kPMMN7oat_vybv40ZwU9-CpKlruy9A';
-const genAI = new GoogleGenerativeAI(API_KEY);
+const API_KEY = 'AIzaSyCJpUfnCRxVdZ5d5-CiloxWUsrxZ8v84O4';
+const genAI = new GoogleGenerativeAI(API_KEY, { apiVersion: 'v1' });
 
 const safeJsonParse = (text) => {
   try {
@@ -14,12 +14,35 @@ const safeJsonParse = (text) => {
   }
 };
 
-export async function analyzeRecording(audioUri) {
+export async function analyzeRecording(audioUri, referenceStyle = null) {
   try {
     const base64Audio = await FileSystem.readAsStringAsync(audioUri, { encoding: FileSystem.EncodingType.Base64 });
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    const prompt = `[Expert English Coach Mode] Analyze this 2-min audio. Return a JSON object with: 1. "transcript": verbatim transcript. 2. "fillers": array of {word, count}. 3. "grammar": array of {wrong, right, explanation}. 4. "vocabulary": array of {word, upgrade, reason}. 5. "fluencyScore": number 1-10. 6. "pronunciation": {score: 1-100, feedback, trickySounds: string[]}. 7. "coachingTip": actionable tip.`;
+    const comparisonContext = referenceStyle ? `This is a style-imitation exercise. Compare the user to this reference style: ${JSON.stringify(referenceStyle)}.` : "";
+
+    const prompt = `[Expert English Coach Mode] Analyze this audio recording. 
+    ${comparisonContext}
+    Return a JSON object with: 
+    1. "transcript": verbatim transcript. 
+    2. "metrics": {
+       "wpm": average words per minute, 
+       "pausePattern": "rhythmic/choppy/no_pauses",
+       "pitchVariation": 1-10 (1: monotone, 10: highly dynamic),
+       "emphasisScore": 1-10
+    }
+    3. "coaching": {
+       "speedFeedback": "e.g., Speak 20% faster",
+       "pauseFeedback": "e.g., Add a 0.5s pause after key phrases",
+       "pitchFeedback": "e.g., Use more vocal variety to sound more professional",
+       "targetedTips": string[]
+    }
+    4. "fillers": array of {word, count}. 
+    5. "grammar": array of {wrong, right, explanation}. 
+    6. "vocabulary": array of {word, upgrade, reason}. 
+    7. "fluencyScore": number 1-10. 
+    8. "pronunciation": {score: 1-100, feedback, trickySounds: string[]}. 
+    9. "coachingTip": overall actionable tip.`;
 
     const result = await model.generateContent([{ inlineData: { data: base64Audio, mimeType: 'audio/mp4' } }, prompt]);
     const content = safeJsonParse(result.response.text());
@@ -29,11 +52,35 @@ export async function analyzeRecording(audioUri) {
   } catch (error) {
     console.error('Analysis Error:', error);
     return {
-      transcript: "Recording captured but AI analysis was interrupted. You sounds great! Try a shorter clip next time.",
+      transcript: "Analysis interrupted.",
+      metrics: { wpm: 100, pausePattern: "choppy", pitchVariation: 5, emphasisScore: 5 },
+      coaching: { speedFeedback: "Keep steady.", pauseFeedback: "Try to pause more.", pitchFeedback: "Good effort.", targetedTips: ["Slow down", "Enunciate"] },
       fillers: [], grammar: [], vocabulary: [], fluencyScore: 7,
-      pronunciation: { score: 75, feedback: "Keep practicing your vowel clarity.", trickySounds: ["th", "r"] },
-      coachingTip: "Focus on speaking slowly and clearly to improve clarity."
+      pronunciation: { score: 75, feedback: "Keep practicing.", trickySounds: ["th"] },
+      coachingTip: "Focus on clarity."
     };
+  }
+}
+
+export async function extractStyleProfile(audioUri) {
+  try {
+    const base64Audio = await FileSystem.readAsStringAsync(audioUri, { encoding: FileSystem.EncodingType.Base64 });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    const prompt = `[Expert Sound Engineer] Analyze this professional speaker's audio. Extract their "Speaking Style Profile".
+    Return a JSON object with:
+    1. "speed": { "wpm": number, "description": "e.g., Fast and energetic" }
+    2. "pauses": { "averageDuration": number, "pattern": "string" }
+    3. "pitch": { "range": "narrow/medium/wide", "variationScore": 1-10 }
+    4. "emphasis": { "frequency": "high/medium/low", "style": "e.g., Stresses the final word of sentences" }
+    5. "sentenceStructure": "e.g., Uses short, punchy declarative sentences"
+    6. "vibe": "e.g., Professional, conversational, authoritative"`;
+
+    const result = await model.generateContent([{ inlineData: { data: base64Audio, mimeType: 'audio/mp4' } }, prompt]);
+    return safeJsonParse(result.response.text());
+  } catch (e) {
+    console.error('Style Extraction Error:', e);
+    return null;
   }
 }
 

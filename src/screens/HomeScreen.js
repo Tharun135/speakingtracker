@@ -228,31 +228,52 @@ export default function HomeScreen({ profile, onLogout }) {
     if (!audioUri) return;
     setAnalyzing(true);
     setShowAnalysisModal(true);
+    setAnalysisResult(null); // Reset previous result
+
     try {
       const result = await analyzeRecording(audioUri);
       
       // Save for Journal
       const journalEntry = await saveToJournal(result, audioUri);
       
-      const analysisWithAudio = { ...result, audioUri: journalEntry.audioPath, timestamp: new Date().toISOString() };
+      // Fallback if journal entry failed to create
+      const audioPathToUse = journalEntry ? journalEntry.audioPath : audioUri;
+      
+      const analysisWithAudio = { 
+        ...result, 
+        audioUri: audioPathToUse, 
+        timestamp: new Date().toISOString() 
+      };
+      
       setAnalysisResult(analysisWithAudio);
       
       if (result && typeof result === 'object' && result.fluencyScore) {
         await saveDayAnalysis(today.day, analysisWithAudio);
         
         // Track Mission Progress
-        if (mission && result.transcript.toLowerCase().includes(mission.word.toLowerCase())) {
-          const count = (result.transcript.toLowerCase().match(new RegExp(mission.word.toLowerCase(), 'g')) || []).length;
-          const updatedM = await updateMissionProgress(count);
-          setMission(updatedM);
-          if (updatedM.progress >= updatedM.targetCount) {
-             Alert.alert("🚀 Mission Accomplished!", `You used '${mission.word}' ${updatedM.progress} times today!`);
+        if (mission && mission.word && result.transcript) {
+          const lowerTranscript = result.transcript.toLowerCase();
+          const lowerWord = mission.word.toLowerCase();
+          if (lowerTranscript.includes(lowerWord)) {
+            const count = (lowerTranscript.match(new RegExp(lowerWord, 'g')) || []).length;
+            const updatedM = await updateMissionProgress(count);
+            setMission(updatedM);
+            if (updatedM.progress >= updatedM.targetCount) {
+               Alert.alert("🚀 Mission Accomplished!", `You used '${mission.word}' ${updatedM.progress} times today!`);
+            }
           }
         }
       }
     } catch (e) {
-      console.error(e);
-      setAnalysisResult('Could not connect to Gemini.');
+      console.error('runAIAnalysis Error:', e);
+      setAnalysisResult({
+        transcript: "Recording captured but analysis failed. This can happen with very long recordings or poor connection.",
+        fluencyScore: 5,
+        pronunciation: { score: 50, feedback: "Keep practicing!", trickySounds: [] },
+        coachingTip: "Try a shorter, clearer recording for better AI depth.",
+        fillers: [],
+        vocabulary: []
+      });
     } finally {
       setAnalyzing(false);
     }

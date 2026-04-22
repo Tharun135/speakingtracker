@@ -53,10 +53,29 @@ export default function HistoryScreen({ profile }) {
       
       <Text style={styles.transcript} numberOfLines={3}>"{item.transcript}"</Text>
       
-      {item.pronunciation && (
-        <View style={styles.pronunRow}>
-          <Text style={styles.pronunLabel}>Pronunciation:</Text>
-          <Text style={styles.pronunScore}>{item.pronunciation.score}%</Text>
+      {item.metrics && (
+        <View style={styles.metricsStrip}>
+          <View style={styles.metricItem}>
+             <Text style={styles.metricVal}>{item.metrics.wpm} WPM</Text>
+             <Text style={styles.metricLabel}>TEMPO</Text>
+          </View>
+          <View style={styles.metricItem}>
+             <Text style={styles.metricVal}>{item.metrics.pitchVariation}/10</Text>
+             <Text style={styles.metricLabel}>PITCH</Text>
+          </View>
+          <View style={styles.metricItem}>
+             <Text style={styles.metricVal}>{item.metrics.pausePattern}</Text>
+             <Text style={styles.metricLabel}>PAUSE</Text>
+          </View>
+        </View>
+      )}
+
+      {item.coaching?.targetedTips?.length > 0 && (
+        <View style={styles.coachingBrief}>
+           <Text style={styles.coachingTitle}>Targeted Tips:</Text>
+           {item.coaching.targetedTips.slice(0, 2).map((tip, i) => (
+             <Text key={i} style={styles.coachingTip}>• {tip}</Text>
+           ))}
         </View>
       )}
 
@@ -65,7 +84,7 @@ export default function HistoryScreen({ profile }) {
           style={[styles.playBtn, playingId === item.id && styles.playBtnActive]} 
           onPress={() => playRecording(item.audioPath, item.id)}
         >
-          <Text style={styles.playBtnText}>{playingId === item.id ? '⏸ PLAYING' : '▶ LISTEN TO SELF'}</Text>
+          <Text style={styles.playBtnText}>{playingId === item.id ? '⏸ PLAYING' : '▶ LISTEN'}</Text>
         </TouchableOpacity>
         
         {item.pronunciation?.trickySounds?.length > 0 && (
@@ -118,17 +137,25 @@ const styles = StyleSheet.create({
   scoreRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   scoreLabel: { color: '#444466', fontSize: 10, fontWeight: '900', textTransform: 'uppercase' },
   scoreVal: { color: '#fff', fontSize: 14, fontWeight: '800' },
-  transcript: { color: '#B0B0D0', fontSize: 14, fontStyle: 'italic', lineHeight: 22, marginBottom: 16 },
-  pronunRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 15 },
-  pronunLabel: { color: '#444466', fontSize: 10, fontWeight: '900', textTransform: 'uppercase' },
-  pronunScore: { color: '#97C459', fontWeight: '800', fontSize: 14 },
+  transcript: { color: '#B0B0D0', fontSize: 14, fontStyle: 'italic', lineHeight: 22, marginBottom: 15 },
+  
+  metricsStrip: { flexDirection: 'row', backgroundColor: '#1A1A2E', borderRadius: 15, padding: 12, gap: 10, marginBottom: 15 },
+  metricItem: { flex: 1, alignItems: 'center', borderRightWidth: 1, borderRightColor: '#2A2A4A' },
+  metricVal: { color: '#fff', fontSize: 13, fontWeight: '900' },
+  metricLabel: { color: '#6C63FF', fontSize: 8, fontWeight: '900', marginTop: 2 },
+  
+  coachingBrief: { backgroundColor: '#43C6AC11', borderRadius: 12, padding: 10, marginBottom: 15 },
+  coachingTitle: { color: '#43C6AC', fontSize: 9, fontWeight: '900', marginBottom: 5 },
+  coachingTip: { color: '#B0B0D0', fontSize: 12, marginBottom: 2 },
+
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  playBtn: { backgroundColor: '#2A2A4A', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12 },
-  playBtnActive: { backgroundColor: '#6C63FF' },
-  playBtnText: { color: '#fff', fontSize: 11, fontWeight: '800' },
-  soundPills: { flexDirection: 'row', gap: 6 },
-  soundPill: { backgroundColor: '#FF658422', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
-  soundPillText: { color: '#FF6584', fontSize: 10, fontWeight: '800' },
+  playBtn: { backgroundColor: '#6C63FF22', borderWidth: 1, borderColor: '#6C63FF', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 12 },
+  playBtnActive: { backgroundColor: '#FF658422', borderColor: '#FF6584' },
+  playBtnText: { color: '#fff', fontSize: 11, fontWeight: '900' },
+  
+  soundPills: { flexDirection: 'row', gap: 5 },
+  soundPill: { backgroundColor: '#2A2A4A', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  soundPillText: { color: '#FF6584', fontSize: 10, fontWeight: '700' },
   empty: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
   emptyText: { color: '#444466', textAlign: 'center', fontSize: 16, lineHeight: 24 },
 });
