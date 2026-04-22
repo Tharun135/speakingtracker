@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as FileSystem from 'expo-file-system';
 
-const API_KEY = 'AIzaSyCJpUfnCRxVdZ5d5-CiloxWUsrxZ8v84O4';
+const API_KEY = 'AIzaSyAGWXLjxdcIvIka5xyNn-FO-QNGMvUD5MM';
 const genAI = new GoogleGenerativeAI(API_KEY, { apiVersion: 'v1' });
 
 const safeJsonParse = (text) => {

@@ -16,6 +16,8 @@ import LoginScreen from './src/screens/LoginScreen';
 import ShadowingScreen from './src/screens/ShadowingScreen';
 import SpeakBetterScreen from './src/screens/SpeakBetterScreen';
 import InterviewPrepScreen from './src/screens/InterviewPrepScreen';
+import GymHubScreen from './src/screens/GymHubScreen';
+import GrowthHubScreen from './src/screens/GrowthHubScreen';
 import { getProfile } from './src/utils/storage';
 import SplashScreen from './src/components/SplashScreen';
 
@@ -53,12 +55,8 @@ const Tab = createBottomTabNavigator();
 
 const TAB_ICONS = {
   Today: { active: '🏠', inactive: '🏠' },
-  Lab: { active: '🧪', inactive: '🧪' },
-  Vocab: { active: '📚', inactive: '📚' },
-  Shadow: { active: '📜', inactive: '📜' },
-  Better: { active: '💬', inactive: '💬' },
-  Journal: { active: '📓', inactive: '📓' },
-  Interview: { active: '👔', inactive: '👔' },
+  Gym: { active: '💪', inactive: '💪' },
+  Growth: { active: '📈', inactive: '📈' },
   Settings: { active: '⚙️', inactive: '⚙️' },
 };
 
@@ -199,26 +197,37 @@ export default function App() {
           <Tab.Screen name="Today">
             {(props) => <HomeScreen {...props} profile={profile} onLogout={handleLogout} />}
           </Tab.Screen>
-          <Tab.Screen name="Lab">
-            {(props) => <VoiceLabScreen {...props} profile={profile} />}
+          
+          <Tab.Screen name="Gym">
+            {(props) => <GymHubScreen {...props} />}
           </Tab.Screen>
-          <Tab.Screen name="Vocab">
-            {(props) => <VocabScreen {...props} profile={profile} />}
+
+          <Tab.Screen name="Growth">
+            {(props) => <GrowthHubScreen {...props} />}
           </Tab.Screen>
-          <Tab.Screen name="Shadow">
-            {(props) => <ShadowingScreen {...props} />}
-          </Tab.Screen>
-          <Tab.Screen name="Better">
-            {(props) => <SpeakBetterScreen {...props} />}
-          </Tab.Screen>
-          <Tab.Screen name="Journal">
-            {(props) => <HistoryScreen {...props} profile={profile} />}
-          </Tab.Screen>
-          <Tab.Screen name="Interview">
-            {(props) => <InterviewPrepScreen {...props} />}
-          </Tab.Screen>
+
           <Tab.Screen name="Settings">
             {(props) => <SettingsScreen {...props} profile={profile} />}
+          </Tab.Screen>
+
+          {/* Hidden Practice Screens */}
+          <Tab.Screen name="Lab" options={{ tabBarButton: () => null }}>
+            {(props) => <VoiceLabScreen {...props} profile={profile} />}
+          </Tab.Screen>
+          <Tab.Screen name="Vocab" options={{ tabBarButton: () => null }}>
+            {(props) => <VocabScreen {...props} profile={profile} />}
+          </Tab.Screen>
+          <Tab.Screen name="Shadow" options={{ tabBarButton: () => null }}>
+            {(props) => <ShadowingScreen {...props} />}
+          </Tab.Screen>
+          <Tab.Screen name="Better" options={{ tabBarButton: () => null }}>
+            {(props) => <SpeakBetterScreen {...props} />}
+          </Tab.Screen>
+          <Tab.Screen name="Journal" options={{ tabBarButton: () => null }}>
+            {(props) => <HistoryScreen {...props} profile={profile} />}
+          </Tab.Screen>
+          <Tab.Screen name="Interview" options={{ tabBarButton: () => null }}>
+            {(props) => <InterviewPrepScreen {...props} />}
           </Tab.Screen>
         </Tab.Navigator>
       </NavigationContainer>

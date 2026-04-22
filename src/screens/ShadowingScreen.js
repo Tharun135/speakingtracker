@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   View, Text, StyleSheet, ScrollView, Dimensions, 
   TouchableOpacity, StatusBar, SafeAreaView, ActivityIndicator,
@@ -12,6 +12,15 @@ import { addXP } from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 
+// Parse script into tokens: { word, isPause }
+function parseScript(content) {
+  return content.split(/(\s+|\/)/).filter(Boolean).map(token => ({
+    word: token.trim(),
+    isPause: token.trim() === '/',
+    isSpace: /^\s+$/.test(token),
+  })).filter(t => !t.isSpace);
+}
+
 export default function ShadowingScreen({ navigation }) {
   const [activeStyle, setActiveStyle] = useState(SPEAKER_STYLES[0]);
   const [activeScript, setActiveScript] = useState(SPEAKER_STYLES[0].scripts[0]);
@@ -20,6 +29,50 @@ export default function ShadowingScreen({ navigation }) {
   const [analyzing, setAnalyzing] = useState(false);
   const [report, setReport] = useState(null);
   const [isPlayingRef, setIsPlayingRef] = useState(false);
+
+  // ── Visual Pacer ──────────────────────────────────────────
+  const [pacerActive, setPacerActive] = useState(false);
+  const [activeWordIdx, setActiveWordIdx] = useState(-1);
+  const pacerTimer = useRef(null);
+  const tokens = useRef(parseScript(activeScript.content));
+
+  // Reset pacer when script/style changes
+  useEffect(() => {
+    stopPacer();
+    tokens.current = parseScript(activeScript.content);
+  }, [activeScript]);
+
+  const stopPacer = useCallback(() => {
+    if (pacerTimer.current) clearTimeout(pacerTimer.current);
+    setPacerActive(false);
+    setActiveWordIdx(-1);
+  }, []);
+
+  const startPacer = useCallback(() => {
+    stopPacer();
+    const wpm = activeStyle.profile.wpm || 130;
+    const msPerWord = (60 / wpm) * 1000;          // normal word delay
+    const msPause   = msPerWord * 2.5;             // breath-mark pause
+    setPacerActive(true);
+    let idx = 0;
+    const tick = () => {
+      setActiveWordIdx(idx);
+      const token = tokens.current[idx];
+      const delay = token?.isPause ? msPause : msPerWord;
+      idx++;
+      if (idx <= tokens.current.length) {
+        pacerTimer.current = setTimeout(tick, delay);
+      } else {
+        // finished
+        pacerTimer.current = setTimeout(() => {
+          setPacerActive(false);
+          setActiveWordIdx(-1);
+        }, 600);
+      }
+    };
+    tick();
+  }, [activeStyle, stopPacer]);
+  // ─────────────────────────────────────────────────────────
 
   // Animation for metrics
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -138,6 +191,35 @@ export default function ShadowingScreen({ navigation }) {
            </View>
         </View>
 
+        {/* Script Picker — shows when style has multiple scripts */}
+        {activeStyle.scripts.length > 1 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.scriptList}
+            contentContainerStyle={{ gap: 8, paddingRight: 20 }}
+          >
+            {activeStyle.scripts.map((s, i) => {
+              const isActive = s.title === activeScript.title;
+              return (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => {
+                    setActiveScript(s);
+                    stopPacer();
+                    setReport(null);
+                  }}
+                  style={[styles.scriptPill, isActive && styles.scriptPillActive]}
+                >
+                  <Text style={[styles.scriptPillText, isActive && styles.scriptPillTextActive]}>
+                    {i + 1}. {s.title}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        )}
+
         {/* Script Area */}
         <View style={styles.scriptArea}>
            <View style={styles.scriptHeader}>
@@ -146,7 +228,41 @@ export default function ShadowingScreen({ navigation }) {
                  <Text style={styles.listenText}>{isPlayingRef ? '⏹ Stop' : '🔊 Listen'}</Text>
               </TouchableOpacity>
            </View>
-           <Text style={styles.scriptContent}>{activeScript.content}</Text>
+           {/* ── Karaoke Word Pacer ── */}
+           <View style={styles.pacerWords}>
+             {tokens.current.map((token, i) =>
+               token.isPause ? (
+                 <View key={i} style={[
+                   styles.pauseMark,
+                   activeWordIdx === i && styles.pauseMarkActive
+                 ]}>
+                   <Text style={[styles.pauseMarkText, activeWordIdx === i && styles.pauseMarkTextActive]}>|</Text>
+                 </View>
+               ) : (
+                 <Text key={i} style={[
+                   styles.pacerWord,
+                   activeWordIdx === i && styles.pacerWordActive,
+                   activeWordIdx > i  && styles.pacerWordDone,
+                 ]}>{token.word}</Text>
+               )
+             )}
+           </View>
+
+           {/* Pacer Controls */}
+           <View style={styles.pacerControls}>
+             <TouchableOpacity
+               onPress={pacerActive ? stopPacer : startPacer}
+               style={[styles.pacerBtn, pacerActive && styles.pacerBtnActive]}
+             >
+               <Text style={styles.pacerBtnText}>
+                 {pacerActive ? '⏹ Stop Pacer' : '▶ Start Pacer'}
+               </Text>
+             </TouchableOpacity>
+             <Text style={styles.pacerHint}>
+               {pacerActive ? `Pacing at ${activeStyle.profile.wpm} WPM` : 'Follow the gold highlight'}
+             </Text>
+           </View>
+
            {activeScript.instruction && (
              <View style={styles.tipBox}>
                 <Text style={styles.tipText}>💡 {activeScript.instruction}</Text>
@@ -242,14 +358,36 @@ const styles = StyleSheet.create({
   profileStats: { flexDirection: 'row', gap: 15 },
   profileStat: { color: '#fff', fontSize: 12, fontWeight: '700', backgroundColor: '#0F0F1A', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
 
+  scriptList: { marginBottom: 16 },
+  scriptPill: {
+    backgroundColor: '#1A1A2E', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8,
+    borderWidth: 1, borderColor: '#2A2A4A',
+  },
+  scriptPillActive: { backgroundColor: '#6C63FF22', borderColor: '#6C63FF' },
+  scriptPillText: { color: '#666', fontSize: 12, fontWeight: '700' },
+  scriptPillTextActive: { color: '#6C63FF' },
+
   scriptArea: { backgroundColor: '#1C1C36', borderRadius: 24, padding: 25, marginBottom: 25, borderWidth: 1, borderColor: '#6C63FF33' },
   scriptHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   scriptBadge: { color: '#43C6AC', fontSize: 10, fontWeight: '900', letterSpacing: 1 },
   listenBtn: { backgroundColor: '#1A1A2E', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1.5, borderColor: '#6C63FF' },
   listenBtnActive: { backgroundColor: '#FF658422', borderColor: '#FF6584' },
   listenText: { color: '#fff', fontWeight: '800', fontSize: 12 },
-  scriptContent: { color: '#fff', fontSize: 22, fontWeight: '700', lineHeight: 36, textAlign: 'center' },
-  tipBox: { marginTop: 20, padding: 12, backgroundColor: '#0F0F1A', borderRadius: 15 },
+  // Pacer styles
+  pacerWords: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6, marginBottom: 20 },
+  pacerWord: { fontSize: 18, fontWeight: '700', color: '#444466', paddingVertical: 2, paddingHorizontal: 4, borderRadius: 6 },
+  pacerWordActive: { color: '#FFD700', backgroundColor: '#FFD70022', fontSize: 22, transform: [{ scale: 1.1 }] },
+  pacerWordDone: { color: '#6C63FF88' },
+  pauseMark: { justifyContent: 'center', alignItems: 'center', width: 20, paddingVertical: 2 },
+  pauseMarkActive: { transform: [{ scaleY: 1.4 }] },
+  pauseMarkText: { color: '#444466', fontSize: 18, fontWeight: '900' },
+  pauseMarkTextActive: { color: '#FF6584' },
+  pacerControls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, marginTop: 4 },
+  pacerBtn: { backgroundColor: '#6C63FF', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12 },
+  pacerBtnActive: { backgroundColor: '#FF6584' },
+  pacerBtnText: { color: '#fff', fontWeight: '800', fontSize: 12 },
+  pacerHint: { color: '#444466', fontSize: 11, fontStyle: 'italic' },
+  tipBox: { marginTop: 8, padding: 12, backgroundColor: '#0F0F1A', borderRadius: 15 },
   tipText: { color: '#6C63FF', fontSize: 13, fontWeight: '600', fontStyle: 'italic', textAlign: 'center' },
 
   mainBtn: { 

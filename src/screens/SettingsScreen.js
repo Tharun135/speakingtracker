@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, Alert, ScrollView, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AnalogClockPicker from '../components/AnalogClockPicker';
 import * as Notifications from 'expo-notifications';
 import * as FileSystem from 'expo-file-system';
 import { saveReminderTime, getReminderTime, getAppSettings, saveAppSettings, getJournalHistory } from '../utils/storage';
@@ -155,12 +156,21 @@ export default function SettingsScreen({ profile }) {
       </View>
 
       {showPicker && (
-        <DateTimePicker
-          value={time}
-          mode="time"
-          is24Hour={true}
-          onChange={handleTimeChange}
-        />
+        Platform.OS === 'web' ? (
+          <AnalogClockPicker
+            visible={showPicker}
+            value={time}
+            onSelect={handleTimeChange}
+            onClose={() => setShowPicker(false)}
+          />
+        ) : (
+          <DateTimePicker
+            value={time}
+            mode="time"
+            is24Hour={true}
+            onChange={handleTimeChange}
+          />
+        )
       )}
       <View style={{ height: 40 }} />
     </ScrollView>
