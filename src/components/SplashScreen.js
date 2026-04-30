@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   },
   underline: {
     height: 4,
-    width: '100%',
+    alignSelf: 'stretch',
     backgroundColor: '#6C63FF',
     borderRadius: 2,
     marginBottom: 20,

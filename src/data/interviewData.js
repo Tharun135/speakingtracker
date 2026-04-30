@@ -1,5 +1,52 @@
 export const INTERVIEW_QUESTIONS = [
   {
+    id: 'intro-1',
+    category: 'Behavioral',
+    question: "Tell me about yourself. (Self-Introduction)",
+    tips: [
+      "Keep it under 2 minutes.",
+      "Follow the 'Past-Present-Future' model.",
+      "Connect your past experience to why you are the perfect fit for this specific role."
+    ],
+    sampleAnswer: "Hi, I’m Tharun Sebastian, a technical writer. I mainly work on user guides and API documentation. Over time, I’ve moved from just writing documents to improving how documentation is created and managed. I focus on making content clear, consistent, and easy to use. I also work closely with product and engineering teams to make sure the documentation matches the product and helps users complete tasks without confusion. In my current role, I improved the documentation process by bringing structure and clear writing standards. This helped reduce errors and made the review cycle faster. I also aligned documentation with release cycles so that content is ready along with the product. Recently, I’ve been working on using AI in documentation, but in a controlled way. Instead of letting AI freely generate content, I focus on making sure it follows rules, does not guess missing information, and gives reliable suggestions. I’ve built systems that can analyze a document, detect issues, apply writing rules, and guide improvements step by step rather than just giving generic suggestions. This helps maintain consistency and reduces manual review effort across multiple applications. From a tooling side, I work with Markdown, MkDocs, Git workflows, and CI/CD pipelines. I also have experience with XML-based authoring using tools like Oxygen XML Editor. I see documentation as an important part of the product, not just support content. My goal is to make it accurate, easy to understand, and scalable as the product grows. I’m now looking for a senior role where I can improve documentation quality, define better processes, and build systems that scale across teams and products.",
+    goodVocab: ["API Documentation", "CI/CD Pipelines", "Controlled AI", "Scalable systems", "Structured authoring"]
+  },
+  {
+    id: 'ess-1',
+    category: 'Essentials',
+    question: "Why do you want to work for this company?",
+    tips: [
+      "Avoid generic 'you are a great company' answers.",
+      "Mention a specific product, feature, or engineering challenge they have.",
+      "Connect their needs to your specific skills (e.g., their need for API docs vs your API experience)."
+    ],
+    sampleAnswer: "I’ve been following your progress in this space, and I’m impressed by how you handle complex technical challenges. My background is in taking complex systems and making them scalable and user-friendly through structured documentation. I see that you are currently expanding your product ecosystem, and that is exactly where I thrive—building the standards that allow documentation to grow alongside the product without losing quality.",
+    goodVocab: ["Alignment", "Scalable growth", "Ecosystem", "Strategic fit"]
+  },
+  {
+    id: 'ess-2',
+    category: 'Essentials',
+    question: "What is your greatest professional strength and a weakness you're working on?",
+    tips: [
+      "For strength: Pick something relevant like 'Technical Clarity' or 'Process Optimization'.",
+      "For weakness: Pick a real one, but show how you are solving it (e.g. learning to delegate or balancing depth vs speed)."
+    ],
+    sampleAnswer: "My greatest strength is my ability to build systems that automate the 'boring' parts of documentation—like style checks and consistency—so the team can focus on high-value writing. As for a weakness, I used to dive too deep into technical implementation before looking at the user journey. To fix this, I now start every project by creating a User Persona Map to ensure I'm always writing for the actual user, not just documenting the code.",
+    goodVocab: ["Process optimization", "User Persona Map", "High-value writing", "Self-correction"]
+  },
+  {
+    id: 'ess-3',
+    category: 'Essentials',
+    question: "Do you have any questions for us?",
+    tips: [
+      "Never say 'No'.",
+      "Ask about their documentation culture or engineering collaboration.",
+      "Ask about their vision for AI in their workflow."
+    ],
+    sampleAnswer: "Yes! First, how do you currently measure the success of your documentation? Second, what is the biggest challenge the team faces when collaborating with engineering on tight release cycles? And finally, given my recent work with controlled AI in documentation, I’m curious to know how your team sees AI evolving in your content creation process over the next year.",
+    goodVocab: ["Documentation culture", "Success metrics", "Collaboration model", "Forward-looking"]
+  },
+  {
     id: '1',
     category: 'Tech Writing',
     question: "How do you convert complex engineering information into user-friendly documentation?",

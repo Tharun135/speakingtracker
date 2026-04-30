@@ -9,6 +9,7 @@ import * as Speech from 'expo-speech';
 import { SPEAKER_STYLES } from '../data/styleGymData';
 import { analyzeRecording } from '../utils/gemini';
 import { addXP } from '../utils/storage';
+import { speak } from '../utils/speech';
 
 const { width } = Dimensions.get('window');
 
@@ -34,13 +35,15 @@ export default function ShadowingScreen({ navigation }) {
   const [pacerActive, setPacerActive] = useState(false);
   const [activeWordIdx, setActiveWordIdx] = useState(-1);
   const pacerTimer = useRef(null);
-  const tokens = useRef(parseScript(activeScript.content));
+  
+  const parsedTokens = parseScript(activeScript.content);
+  const tokensRef = useRef(parsedTokens);
+  tokensRef.current = parsedTokens;
 
   // Reset pacer when script/style changes
   useEffect(() => {
     stopPacer();
-    tokens.current = parseScript(activeScript.content);
-  }, [activeScript]);
+  }, [activeScript, stopPacer]);
 
   const stopPacer = useCallback(() => {
     if (pacerTimer.current) clearTimeout(pacerTimer.current);
@@ -57,10 +60,10 @@ export default function ShadowingScreen({ navigation }) {
     let idx = 0;
     const tick = () => {
       setActiveWordIdx(idx);
-      const token = tokens.current[idx];
+      const token = tokensRef.current[idx];
       const delay = token?.isPause ? msPause : msPerWord;
       idx++;
-      if (idx <= tokens.current.length) {
+      if (idx <= tokensRef.current.length) {
         pacerTimer.current = setTimeout(tick, delay);
       } else {
         // finished
@@ -132,7 +135,7 @@ export default function ShadowingScreen({ navigation }) {
     }
     setIsPlayingRef(true);
     // Simulate podcast audio using TTS with style-matched settings
-    Speech.speak(activeScript.content.replace(/\//g, ''), {
+    speak(activeScript.content.replace(/\//g, ''), {
       rate: activeStyle.profile.wpm / 150, // Normalized
       pitch: activeStyle.id === 'ENTREPRENEUR' ? 1.1 : 0.9,
       onDone: () => setIsPlayingRef(false),
@@ -230,7 +233,7 @@ export default function ShadowingScreen({ navigation }) {
            </View>
            {/* ── Karaoke Word Pacer ── */}
            <View style={styles.pacerWords}>
-             {tokens.current.map((token, i) =>
+             {parsedTokens.map((token, i) =>
                token.isPause ? (
                  <View key={i} style={[
                    styles.pauseMark,

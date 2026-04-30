@@ -49,7 +49,7 @@ export default function VocabScreen({ profile }) {
     setShuffledChunks(shuffled);
     const profile = await getProfile();
     const word = await getWordOfTheDay(profile?.level || 'B2', profile?.interests || []);
-    setWordDay(word);
+    setWordDay(word && word.length > 0 ? word[0] : null);
     const stuck = await getStuckWords();
     setStuckWords(stuck);
     const favs = await getFavorites();
@@ -244,7 +244,7 @@ export default function VocabScreen({ profile }) {
           <TouchableOpacity style={styles.drillCloseIcon} onPress={() => setStage(DRILL_STAGES.IDLE)}><Text style={styles.drillCloseIconText}>✕</Text></TouchableOpacity>
           {stage === DRILL_STAGES.FLASH && (
             <Animated.View style={[styles.flashBox, { opacity: flashAnim }]}>
-              <Text style={styles.drillWordFlash}>{currentDrillWord.word}</Text>
+              <Text style={styles.drillWordFlash}>{currentDrillWord?.word || "Get ready..."}</Text>
               <Text style={styles.flashHint}>Look carefully...</Text>
             </Animated.View>
           )}
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
   drillCloseIcon: { position: 'absolute', top: 50, right: 20, zIndex: 10 },
   drillCloseIconText: { color: '#444', fontSize: 24, fontWeight: '700' },
   flashBox: { alignItems: 'center' },
-  drillWordFlash: { fontSize: 64, fontWeight: '900', color: '#fff' },
+  drillWordFlash: { fontSize: 38, fontWeight: '900', color: '#fff', textAlign: 'center', paddingHorizontal: 20 },
   flashHint: { color: '#6C63FF', marginTop: 20, fontSize: 16, fontWeight: '800' },
   
   recallBox: { flex: 1, justifyContent: 'center' },

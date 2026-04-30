@@ -12,8 +12,8 @@ export const getPreferredVoiceOptions = async () => {
 
     if (settings.voiceGender) {
       const enVoices = voices.filter(v => (v.language || '').toLowerCase().startsWith('en'));
-      const maleNames = ['male', 'alex', 'david', 'george', 'guy', 'daniel', 'arthur', 'mark', 'google uk english male', 'us english male'];
-      const femaleNames = ['female', 'samantha', 'victoria', 'karen', 'moira', 'tessa', 'google uk english female', 'us english female'];
+      const maleNames = ['male', 'alex', 'david', 'george', 'guy', 'daniel', 'arthur', 'mark', 'google uk english male', 'us english male', 'en-us-x-sfg-local', 'en-us-x-iom-local', 'en-au-x-aub-local', 'en-gb-x-gbc-local'];
+      const femaleNames = ['female', 'samantha', 'victoria', 'karen', 'moira', 'tessa', 'google uk english female', 'us english female', 'en-us-x-tpf-local', 'en-us-x-ana-local', 'en-au-x-aud-local', 'en-gb-x-gbb-local'];
 
       let preferredVoice = null;
       if (settings.voiceGender === 'masculine') {
