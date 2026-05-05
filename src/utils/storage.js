@@ -1,4 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
+
 
 const KEYS = {
   COMPLETED_DAYS: 'completed_days',

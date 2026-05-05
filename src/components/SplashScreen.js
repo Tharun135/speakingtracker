@@ -21,12 +21,12 @@ const SplashScreen = ({ onFinish }) => {
         Animated.timing(letterOpacity[i], {
           toValue: 1,
           duration: 350,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== 'web',
         }),
         Animated.timing(letterTranslate[i], {
           toValue: 0,
           duration: 400,
-          useNativeDriver: true, // Utilizing native driver for 60fps performance
+          useNativeDriver: Platform.OS !== 'web', // Utilizing native driver for 60fps performance where supported
         })
       ]);
     });
@@ -42,14 +42,14 @@ const SplashScreen = ({ onFinish }) => {
         toValue: 1,
         friction: 6,
         tension: 40,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
       
       // Smoothly fade in the subtitle
       Animated.timing(subOpacity, {
         toValue: 1,
         duration: 800,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
       
       Animated.delay(1200), // Hold on screen to let the user admire the bootup
@@ -58,7 +58,7 @@ const SplashScreen = ({ onFinish }) => {
       Animated.timing(fadeAnim, {
         toValue: 0,
         duration: 600,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       })
     ]).start(() => {
       if (onFinish) onFinish();

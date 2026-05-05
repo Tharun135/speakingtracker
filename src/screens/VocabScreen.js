@@ -44,17 +44,22 @@ export default function VocabScreen({ profile }) {
   }, []);
 
   const loadInitialData = async () => {
-    setLoading(true);
-    const shuffled = [...NATURAL_CHUNKS].sort(() => Math.random() - 0.5);
-    setShuffledChunks(shuffled);
-    const profile = await getProfile();
-    const word = await getWordOfTheDay(profile?.level || 'B2', profile?.interests || []);
-    setWordDay(word && word.length > 0 ? word[0] : null);
-    const stuck = await getStuckWords();
-    setStuckWords(stuck);
-    const favs = await getFavorites();
-    setFavorites(favs);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const shuffled = [...NATURAL_CHUNKS].sort(() => Math.random() - 0.5);
+      setShuffledChunks(shuffled);
+      const profile = await getProfile();
+      const word = await getWordOfTheDay(profile?.level || 'B2', profile?.interests || []);
+      setWordDay(word && word.length > 0 ? word[0] : null);
+      const stuck = await getStuckWords();
+      setStuckWords(stuck);
+      const favs = await getFavorites();
+      setFavorites(favs);
+    } catch (e) {
+      console.error('loadInitialData error:', e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const shuffleChunks = () => {
@@ -88,9 +93,9 @@ export default function VocabScreen({ profile }) {
     setUserInput('');
     setAiResult(null);
     Animated.sequence([
-      Animated.timing(flashAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
+      Animated.timing(flashAnim, { toValue: 1, duration: 300, useNativeDriver: Platform.OS !== 'web' }),
       Animated.delay(2000),
-      Animated.timing(flashAnim, { toValue: 0, duration: 300, useNativeDriver: true })
+      Animated.timing(flashAnim, { toValue: 0, duration: 300, useNativeDriver: Platform.OS !== 'web' })
     ]).start(() => setStage(DRILL_STAGES.RECALL));
   };
 

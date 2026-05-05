@@ -70,26 +70,30 @@ export default function HomeScreen({ profile, onLogout }) {
   );
 
   const loadData = async () => {
-    const d = await getCompletedDays();
-    setCompletedDays(new Set(d));
-    
-    let m = await getMissionState();
-    const todayStr = new Date().toDateString();
-    if (!m || new Date(m.lastUpdated).toDateString() !== todayStr) {
-      const profile = await getProfile();
-      const newMission = await getDailyMission(profile?.level || 'B2', profile?.interests || []);
-      if (newMission) {
-        m = await saveMission(newMission);
+    try {
+      const d = await getCompletedDays();
+      setCompletedDays(new Set(d));
+      
+      let m = await getMissionState();
+      const todayStr = new Date().toDateString();
+      if (!m || new Date(m.lastUpdated).toDateString() !== todayStr) {
+        const profile = await getProfile();
+        const newMission = await getDailyMission(profile?.level || 'B2', profile?.interests || []);
+        if (newMission) {
+          m = await saveMission(newMission);
+        }
       }
-    }
-    setMission(m);
+      setMission(m);
 
-    // Load Daily Word
-    const p = await getProfile();
-    const word = await getWordOfTheDay(p?.level || 'B2', p?.interests || []);
-    setDailyWord(word);
-    
-    setLoading(false);
+      // Load Daily Word
+      const p = await getProfile();
+      const word = await getWordOfTheDay(p?.level || 'B2', p?.interests || []);
+      setDailyWord(word);
+    } catch (e) {
+      console.error('loadData error:', e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const nextAutoDay = [...WEEK_SCHEDULE].flatMap(w => w.days).find(
