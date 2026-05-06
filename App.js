@@ -18,7 +18,7 @@ import ShadowingScreen from './src/screens/ShadowingScreen';
 
 import SpeakBetterScreen from './src/screens/SpeakBetterScreen';
 import InterviewPrepScreen from './src/screens/InterviewPrepScreen';
-import GymHubScreen from './src/screens/GymHubScreen';
+import ArenaHubScreen from './src/screens/ArenaHubScreen';
 import GrowthHubScreen from './src/screens/GrowthHubScreen';
 import { getProfile } from './src/utils/storage';
 import SplashScreen from './src/components/SplashScreen';
@@ -57,7 +57,7 @@ const Tab = createBottomTabNavigator();
 
 const TAB_ICONS = {
   Today: { active: '🏠', inactive: '🏠' },
-  Gym: { active: '💪', inactive: '💪' },
+  Arena: { active: '⚔️', inactive: '⚔️' },
   Growth: { active: '📈', inactive: '📈' },
   Settings: { active: '⚙️', inactive: '⚙️' },
 };
@@ -200,8 +200,8 @@ export default function App() {
             {(props) => <HomeScreen {...props} profile={profile} onLogout={handleLogout} />}
           </Tab.Screen>
           
-          <Tab.Screen name="Gym">
-            {(props) => <GymHubScreen {...props} />}
+          <Tab.Screen name="Arena">
+            {(props) => <ArenaHubScreen {...props} />}
           </Tab.Screen>
 
           <Tab.Screen name="Growth">

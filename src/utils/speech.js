@@ -3,7 +3,13 @@ import { getAppSettings } from './storage';
 
 export const getPreferredVoiceOptions = async () => {
     const settings = await getAppSettings();
-    const voices = await Speech.getAvailableVoicesAsync() || [];
+    let voices = await Speech.getAvailableVoicesAsync() || [];
+    
+    // Web browsers sometimes take a moment to load voices
+    if (voices.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      voices = await Speech.getAvailableVoicesAsync() || [];
+    }
     
     const options = {
       pitch: 1.0,
@@ -12,14 +18,19 @@ export const getPreferredVoiceOptions = async () => {
 
     if (settings.voiceGender) {
       const enVoices = voices.filter(v => (v.language || '').toLowerCase().startsWith('en'));
-      const maleNames = ['male', 'alex', 'david', 'george', 'guy', 'daniel', 'arthur', 'mark', 'google uk english male', 'us english male', 'en-us-x-sfg-local', 'en-us-x-iom-local', 'en-au-x-aub-local', 'en-gb-x-gbc-local'];
-      const femaleNames = ['female', 'samantha', 'victoria', 'karen', 'moira', 'tessa', 'google uk english female', 'us english female', 'en-us-x-tpf-local', 'en-us-x-ana-local', 'en-au-x-aud-local', 'en-gb-x-gbb-local'];
+      const maleNames = ['male', 'alex', 'david', 'george', 'guy', 'daniel', 'arthur', 'mark', 'james', 'richard', 'pavel', 'google uk english male', 'us english male', 'en-us-x-sfg-local', 'en-us-x-iom-local', 'en-au-x-aub-local', 'en-gb-x-gbc-local', 'microsoft david', 'microsoft james', 'microsoft richard'];
+      const femaleNames = ['female', 'samantha', 'victoria', 'karen', 'moira', 'tessa', 'zira', 'hazel', 'susan', 'sally', 'heera', 'google uk english female', 'us english female', 'en-us-x-tpf-local', 'en-us-x-ana-local', 'en-au-x-aud-local', 'en-gb-x-gbb-local', 'microsoft zira', 'microsoft hazel', 'microsoft susan'];
 
       let preferredVoice = null;
+      const findVoice = (names) => enVoices.find(v => {
+        const name = (v.name || '').toLowerCase();
+        return names.some(n => name.includes(n));
+      });
+
       if (settings.voiceGender === 'masculine') {
-         preferredVoice = enVoices.find(v => maleNames.some(name => v.name.toLowerCase().includes(name)));
+         preferredVoice = findVoice(maleNames);
       } else {
-         preferredVoice = enVoices.find(v => femaleNames.some(name => v.name.toLowerCase().includes(name)));
+         preferredVoice = findVoice(femaleNames);
       }
 
       if (!preferredVoice && enVoices.length > 0) {

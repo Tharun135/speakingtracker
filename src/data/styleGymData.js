@@ -161,12 +161,12 @@ export const SPEAKER_STYLES = [
       },
       {
         title: 'The 4-Hub Navigation',
-        content: "We redesigned the navigation / into four clean hubs. / Today / is your daily dashboard. / Gym / is your training center / for all practice modes. / Growth / is where your vocabulary / and journal live. / And Settings / handles your account / and preferences. / The bottom bar is clean. / The depth / is still there.",
+        content: "We redesigned the navigation / into four clean hubs. / Today / is your daily dashboard. / The Arena / is your training center / for all practice modes. / Growth / is where your vocabulary / and journal live. / And Settings / handles your account / and preferences. / The bottom bar is clean. / The depth / is still there.",
         instruction: "Pause after naming each hub. '...The depth is still there.' — deliver this softly as a reassurance.",
       },
       {
-        title: 'How the Style Gym Teaches You',
-        content: "The Style Gym works / by giving you a professional speaking profile / to mirror. / Each profile has / a target words-per-minute, / a pitch range, / and a pause pattern. / The script contains / special breath marks / that show you exactly / where the expert pauses. / You shadow that pattern, / and the AI compares / your delivery / against the target fingerprint.",
+        title: 'How The Arena Teaches You',
+        content: "The Arena works / by giving you a professional speaking profile / to mirror. / Each profile has / a target words-per-minute, / a pitch range, / and a pause pattern. / The script contains / special breath marks / that show you exactly / where the expert pauses. / You shadow that pattern, / and the AI compares / your delivery / against the target fingerprint.",
         instruction: "Say 'fingerprint' slowly — it's the key metaphor. Build the sentence with increasing weight.",
       },
       {

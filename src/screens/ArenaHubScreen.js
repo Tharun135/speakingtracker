@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-export default function GymHubScreen({ navigation }) {
+export default function ArenaHubScreen({ navigation }) {
   const modes = [
     { name: 'Voice Lab', desc: 'AI-powered pitch & pace analysis', icon: '🧪', screen: 'Lab', color: ['#6C63FF', '#4B42E6'] },
     { name: 'Shadowing', desc: 'Train with professional speakers', icon: '📜', screen: 'Shadow', color: ['#FF6B6B', '#E64B4B'] },
@@ -13,7 +13,7 @@ export default function GymHubScreen({ navigation }) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Practice Gym</Text>
+        <Text style={styles.title}>The Arena</Text>
         <Text style={styles.subtitle}>Choose your training mode today</Text>
       </View>
 

@@ -8,8 +8,8 @@ export const INTERVIEW_QUESTIONS = [
       "Follow the 'Past-Present-Future' model.",
       "Connect your past experience to why you are the perfect fit for this specific role."
     ],
-    sampleAnswer: "Hi, I’m Tharun Sebastian, a technical writer. I mainly work on user guides and API documentation. Over time, I’ve moved from just writing documents to improving how documentation is created and managed. I focus on making content clear, consistent, and easy to use. I also work closely with product and engineering teams to make sure the documentation matches the product and helps users complete tasks without confusion. In my current role, I improved the documentation process by bringing structure and clear writing standards. This helped reduce errors and made the review cycle faster. I also aligned documentation with release cycles so that content is ready along with the product. Recently, I’ve been working on using AI in documentation, but in a controlled way. Instead of letting AI freely generate content, I focus on making sure it follows rules, does not guess missing information, and gives reliable suggestions. I’ve built systems that can analyze a document, detect issues, apply writing rules, and guide improvements step by step rather than just giving generic suggestions. This helps maintain consistency and reduces manual review effort across multiple applications. From a tooling side, I work with Markdown, MkDocs, Git workflows, and CI/CD pipelines. I also have experience with XML-based authoring using tools like Oxygen XML Editor. I see documentation as an important part of the product, not just support content. My goal is to make it accurate, easy to understand, and scalable as the product grows. I’m now looking for a senior role where I can improve documentation quality, define better processes, and build systems that scale across teams and products.",
-    goodVocab: ["API Documentation", "CI/CD Pipelines", "Controlled AI", "Scalable systems", "Structured authoring"]
+    sampleAnswer: "My name is Tharun Sebastian. I’m a Senior Technical Writer with experience across multiple domains, and I’ve worked on both software and hardware product documentation. Over the years, I’ve focused not just on writing content, but on improving how documentation is created, reviewed, and delivered. I currently work in a docs-as-code setup where documentation is handled like software. Everything is maintained in GitLab, goes through automated pipeline stages, and is deployed through CI/CD. I also have strong experience in structured authoring using XML tools like Oxygen XML Editor. Beyond that, I spend a lot of time improving content quality and usability. I focus on making documentation clear, consistent, and easy for users to follow. I also work closely with product and engineering teams to ensure the documentation stays aligned with the product and helps users complete tasks without confusion. In my current role, I introduced an AI review tool and a documentation agent orchestration system. This reduced errors and made review cycles faster. I’ve mainly focused on using AI in a controlled and practical way, where it can analyze documents, detect issues, apply writing rules, and guide improvements step by step instead of blindly generating content. I see documentation as a core part of the product, not just supporting content. My goal is to make it accurate, easy to use, and scalable as the product grows. I’m now looking for a senior role where I can improve documentation quality, define better processes, and build systems that scale across teams and products.",
+    goodVocab: ["Docs-as-code", "GitLab CI/CD", "Structured Authoring", "AI Orchestration", "Content Usability"]
   },
   {
     id: 'ess-1',
@@ -18,33 +18,35 @@ export const INTERVIEW_QUESTIONS = [
     tips: [
       "Avoid generic 'you are a great company' answers.",
       "Mention a specific product, feature, or engineering challenge they have.",
-      "Connect their needs to your specific skills (e.g., their need for API docs vs your API experience)."
+      "Connect their needs to your specific skills (e.g., their need for API docs vs your AI experience)."
     ],
-    sampleAnswer: "I’ve been following your progress in this space, and I’m impressed by how you handle complex technical challenges. My background is in taking complex systems and making them scalable and user-friendly through structured documentation. I see that you are currently expanding your product ecosystem, and that is exactly where I thrive—building the standards that allow documentation to grow alongside the product without losing quality.",
-    goodVocab: ["Alignment", "Scalable growth", "Ecosystem", "Strategic fit"]
+    sampleAnswer: "I appreciate that your organization values a strong documentation culture, cross-functional collaboration, and modern delivery systems. Your focus on innovation aligns perfectly with my experience in docs-as-code, automation, and content intelligence. I’m particularly drawn to the opportunity to work closely with engineering teams and help enhance documentation workflows, structure, and user experience.",
+    goodVocab: ["Documentation Culture", "Content Intelligence", "Innovation Alignment", "Cross-functional"]
   },
   {
     id: 'ess-2',
     category: 'Essentials',
-    question: "What is your greatest professional strength and a weakness you're working on?",
+    question: "What are your main strengths and weaknesses?",
     tips: [
-      "For strength: Pick something relevant like 'Technical Clarity' or 'Process Optimization'.",
-      "For weakness: Pick a real one, but show how you are solving it (e.g. learning to delegate or balancing depth vs speed)."
+      "Strength 1: Getting up to speed fast by breaking down complex topics.",
+      "Strength 2: Staying calm under pressure and adjusting strategy fast.",
+      "Strength 3: Structuring the day to hit deadlines.",
+      "Strength 4: Delivering results by owning projects."
     ],
-    sampleAnswer: "My greatest strength is my ability to build systems that automate the 'boring' parts of documentation—like style checks and consistency—so the team can focus on high-value writing. As for a weakness, I used to dive too deep into technical implementation before looking at the user journey. To fix this, I now start every project by creating a User Persona Map to ensure I'm always writing for the actual user, not just documenting the code.",
-    goodVocab: ["Process optimization", "User Persona Map", "High-value writing", "Self-correction"]
+    sampleAnswer: "My core strengths include structured authoring, cross-functional coordination, and process automation. I get up to speed fast by breaking down complex topics and applying them directly to my workflow. I stay calm under pressure by focusing on facts and adjusting strategy fast when needed. As for a weakness, I sometimes spend too much time perfecting early drafts. To improve, I now follow an incremental approach—focusing on technical completeness first, then refining style in subsequent review cycles.",
+    goodVocab: ["Process Automation", "Incremental Approach", "Composure", "Technical Completeness"]
   },
   {
     id: 'ess-3',
     category: 'Essentials',
     question: "Do you have any questions for us?",
     tips: [
-      "Never say 'No'.",
-      "Ask about their documentation culture or engineering collaboration.",
-      "Ask about their vision for AI in their workflow."
+      "Ask about engineering collaboration.",
+      "Ask about success metrics.",
+      "Ask about future workflow innovations."
     ],
-    sampleAnswer: "Yes! First, how do you currently measure the success of your documentation? Second, what is the biggest challenge the team faces when collaborating with engineering on tight release cycles? And finally, given my recent work with controlled AI in documentation, I’m curious to know how your team sees AI evolving in your content creation process over the next year.",
-    goodVocab: ["Documentation culture", "Success metrics", "Collaboration model", "Forward-looking"]
+    sampleAnswer: "Yes! I'd like to know: 1. How does the engineering team collaborate with writers during sprints? 2. What documentation tools or platforms do you currently use? 3. How do you measure documentation success? 4. What opportunities exist for improving current documentation workflows?",
+    goodVocab: ["Collaboration Model", "Success Metrics", "Workflow Innovation", "Strategy"]
   },
   {
     id: '1',
@@ -1687,6 +1689,510 @@ export const INTERVIEW_QUESTIONS = [
     ],
     sampleAnswer: "As a technical writer in a Scrum team, my role is to act as a bridge between the engineering output and the user’s needs. I don't just write; I contribute to the 'Definition of Done' to ensure no feature is released without docs. I also attend sprint reviews to catch UI changes early and provide feedback on usability, helping the team deliver a more polished product each iteration.",
     goodVocab: ["Bridge", "Definition of Done", "Iteration", "Usability feedback"]
+  },
+  {
+    id: 'proc-1',
+    category: 'Process',
+    question: "What is your technical writing process?",
+    tips: ["Mention Agile/Scrum.", "Discuss Docs-as-Code.", "Highlight information gathering vs content creation stages."],
+    sampleAnswer: "We follow the Agile methodology using the Scrum model. I receive a user story in TFS once the feature is developed. I then schedule a meeting or demo with developers/POs to understand the functionality. I also use a dedicated VM to test the feature independently and capture notes. With these inputs, I follow a structured Docs-as-Code workflow: creating Markdown content in VS Code, managing it in GitLab with feature branches, and submitting Merge Requests for peer review. Our CI/CD pipeline automatically validates syntax, checks spelling/grammar via Vale and CSpell, and verifies links. After approval, the pipeline builds the docs using MkDocs and publishes them to Fluid Topics. This ensures quality from gathering to delivery.",
+    goodVocab: ["Docs-as-Code", "Agile/Scrum", "CI/CD Pipeline", "Fluid Topics", "Information Gathering"]
+  },
+  {
+    id: 'tw-consist',
+    category: 'Tech Writing',
+    question: "How do you ensure document consistency?",
+    tips: ["Discuss style guides.", "Mention automated linting.", "Highlight the role of templates."],
+    sampleAnswer: "Consistency is maintained through a mix of templates, automated quality checks, and peer reviews. We follow a structured style guide and use predefined templates for content types like changelogs. Our CI/CD pipeline integrates Markdown linting and tools like Vale and Code Spell Checker to enforce writing standards and grammar. During planning, I align with a Structured Writing Template to maintain uniform naming and formatting. MkDocs' strict build flags inconsistencies before publication, and human-driven reviews ensure the tone and clarity remain consistent across projects.",
+    goodVocab: ["Style Guide", "Automated Linting", "Vale", "Uniformity", "Strict Build"]
+  },
+  {
+    id: 'tool-1',
+    category: 'Tooling',
+    question: "What tools do you use for authoring and publishing?",
+    tips: ["Mention VS Code.", "Discuss GitLab and MkDocs.", "Highlight the delivery platform (Fluid Topics)."],
+    sampleAnswer: "I use Visual Studio Code as the primary authoring environment for its strong Markdown and Git integration. Documentation is authored in Markdown, managed in GitLab, and built into static sites using MkDocs and Python Poetry for dependency management. For previewing, I use local builds or containerized setups (Docker/Podman). Publishing is handled via automated CI/CD pipelines that deploy directly to Fluid Topics, Siemens' content delivery platform, which provides an interactive, searchable user experience.",
+    goodVocab: ["VS Code", "GitLab", "MkDocs", "Poetry", "Fluid Topics"]
+  },
+  {
+    id: 'beh-collab',
+    category: 'Behavioral',
+    question: "How do you collaborate with developers or SMEs?",
+    tips: ["Focus on the Docs-as-Code collaborative model.", "Mention GitLab Merge Requests.", "Discuss issue tracking (Jira/GitLab Issues)."],
+    sampleAnswer: "Collaboration is embedded in our docs-as-code process. Developers often provide initial drafts, which I refine for clarity, consistency, and style compliance. We use GitLab merge requests for technical validation and peer review—automated checks provide instant feedback to both of us. Additionally, I use Jira or GitLab Issues to manage bugs and enhancement requests. This structured workflow ensures continuous alignment between engineering and documentation teams.",
+    goodVocab: ["Merge Requests", "Technical Validation", "Alignment", "Continuous Feedback"]
+  },
+  {
+    id: 'git-vc-1',
+    category: 'Git & Version Control',
+    question: "How do you handle version control and documentation updates?",
+    tips: ["Discuss branching strategy (Feature/Release/Hotfix).", "Mention tagging for releases.", "Highlight traceability to software versions."],
+    sampleAnswer: "All documentation is managed in GitLab using Git version control. We follow a clear branching strategy: feature branches for new content, release branches for stabilization, and hotfix branches for urgent updates. Before a release, I create a tagged version to mark the production-ready state. Approved team branches merge into the main production branch, and release tags trigger automated deployment to Fluid Topics. This ensures documentation is always traceable to specific software releases, avoiding version mismatches.",
+    goodVocab: ["Branching Strategy", "Tagging", "Traceability", "Version Mismatch"]
+  },
+  {
+    id: 'auto-cicd-1',
+    category: 'Automation & CI/CD',
+    question: "How do you integrate documentation with CI/CD pipelines?",
+    tips: ["Mention the stages: Lint, Build, Deploy.", "Discuss real-time validation.", "Highlight reduced manual effort."],
+    sampleAnswer: "Integration with CI/CD is central to our docs-as-code model. Every commit to GitLab triggers a pipeline that automatically validates, builds, and deploys the documentation. Stages include linting (syntax, spelling, style), building (HTML generation via MkDocs), and deployment to Fluid Topics. We also automate translation and archiving through the same pipeline. This approach provides real-time validation and rapid deployment, drastically reducing manual effort while ensuring the docs are always release-ready.",
+    goodVocab: ["Pipeline Stages", "Real-time Validation", "Continuous Readiness", "Automation"]
+  },
+  {
+    id: 'star-chall-1',
+    category: 'STAR (Sr. TW)',
+    question: "What challenges have you faced in automating documentation delivery?",
+    tips: ["Discuss dependency management.", "Mention metadata accuracy.", "Highlight how you solved it (Standardization)."],
+    sampleAnswer: "One main challenge was managing tool dependencies (MkDocs, Poetry, Docker) across different environments. We solved this by creating standardized containerized build environments. Another challenge was ensuring metadata accuracy for Fluid Topics, which impacts search visibility. We addressed this by standardizing metadata templates and integrating validation scripts into the CI/CD pipeline. These solutions reduced publishing errors and improved delivery speed across multiple applications.",
+    goodVocab: ["Dependency Management", "Metadata Validation", "Standardization", "Search Visibility"]
+  },
+  {
+    id: 'git-vc-2',
+    category: 'Git & Version Control',
+    question: "What are the benefits of using version control for documentation?",
+    tips: ["Traceability and accountability.", "Parallel workstreams.", "Quality gates (Merge Requests)."],
+    sampleAnswer: "Git provides transparency and traceability. Every change is tracked with commit messages and reviewer feedback. Branching enables parallel workstreams, allowing multiple contributors to work on different sections safely. Merge requests act as quality gates, ensuring content is reviewed before integration. Version tags also make it easy to align multiple documentation versions with specific product releases, simplifying rollbacks and historical tracking.",
+    goodVocab: ["Traceability", "Parallel Workstreams", "Quality Gates", "Accountability"]
+  },
+  {
+    id: 'tool-mkdocs',
+    category: 'Tooling',
+    question: "How did you configure your MkDocs setup, including themes and plugins?",
+    tips: ["Mention Siemens Docs Theme.", "Discuss key plugins (Macros, Snippets).", "Highlight dependency management with Poetry."],
+    sampleAnswer: "Our MkDocs setup is standardized using the Siemens Docs Theme (based on Material). The config is in mkdocs.yml, covering navigation, metadata, and link redirections. We enhance functionality with plugins like Macros, Snippets, and Fluid Topics Linter, all validated in the pipeline. All dependencies are managed with Python Poetry to ensure reproducibility. The result is a clean, responsive portal that matches our brand and provides a consistent user experience.",
+    goodVocab: ["Material Theme", "YAML Configuration", "Reproducibility", "Plugins"]
+  },
+  {
+    id: 'tool-fluid',
+    category: 'Tooling',
+    question: "Can you explain how Fluid Topics improves documentation accessibility and reuse?",
+    tips: ["Interactive knowledge experience.", "Metadata-driven search.", "Content reuse from multiple repos."],
+    sampleAnswer: "Fluid Topics transforms static docs into an interactive knowledge experience. It uses metadata-driven search and filtering to help users find content easily. From a writer's perspective, it promotes reuse by allowing us to publish modular content from multiple repositories and assemble them into search sets or collections. It also handles access control and multilingual delivery, bridging the gap between authoring and a dynamic user experience.",
+    goodVocab: ["Metadata-driven", "Content Reuse", "Accessibility", "Unified Portal"]
+  },
+  {
+    id: 'auto-cicd-2',
+    category: 'Automation & CI/CD',
+    question: "How is the CI/CD pipeline structured for validation, build, and deployment stages?",
+    tips: ["List the stages clearly (Lint, Build, Deploy).", "Mention specific tools used in each."],
+    sampleAnswer: "Our GitLab pipeline has four stages: 1. Lint Stage (Markdownlint, Vale, YAML Lint, CSpell); 2. Build Stage (MkDocs/Poetry for HTML and link validation); 3. Deploy Stage (API upload to Fluid Topics staging/prod); and 4. Archiving Stage (integration with Siemens DSS for archiving). This fully automated structure ensures every commit triggers a rigorous quality check before deployment.",
+    goodVocab: ["Automated Stages", "Linting", "Content Integrity", "Accelerated Delivery"]
+  },
+  {
+    id: 'auto-quality',
+    category: 'Automation & CI/CD',
+    question: "How did you automate quality checks such as Markdown linting, Vale style checks, and broken link detection?",
+    tips: ["Integration in GitLab CI.", "Real-time feedback in MRs.", "Local VS Code extensions."],
+    sampleAnswer: "We integrated checks directly into the GitLab CI/CD pipeline. Markdownlint checks syntax, Vale enforces Siemens' writing style, and CSpell verifies spelling. During the build, MkDocs' strict mode flags broken links. These checks run on every commit, providing immediate feedback in Merge Requests. Writers also use the same tools as VS Code extensions, allowing them to fix issues locally before even pushing to the repository.",
+    goodVocab: ["Vale", "CSpell", "Strict Mode", "Pre-push Validation"]
+  },
+  {
+    id: 'proc-auto-quality',
+    category: 'Process',
+    question: "How do style and rules automation improve content quality in your documentation pipeline?",
+    tips: ["Self-correction.", "Consistency across contributors.", "Faster review cycles."],
+    sampleAnswer: "Automating style enforcement ensures every document follows standards before it reaches a human reviewer. Vale enforces tone and grammar rules from our Style Guide, while Markdownlint ensures structural consistency. This eliminates subjective reviews and maintains a consistent corporate voice across hundreds of documents. It empowers writers to self-correct during authoring, leading to faster reviews and a higher overall quality standard.",
+    goodVocab: ["Self-correction", "Corporate Voice", "Subjective Review", "Standardization"]
+  },
+  {
+    id: 'tool-poetry',
+    category: 'Tooling',
+    question: "What role does Python Poetry play in managing documentation builds?",
+    tips: ["Dependency management.", "Lock files for deterministic builds.", "Onboarding efficiency."],
+    sampleAnswer: "Python Poetry is our dependency manager. Since our tools (MkDocs, etc.) are Python-based, Poetry ensures consistent versioning across all systems via the lock file. This guarantees that every build—local, containerized, or CI/CD—uses identical plugin versions. It also simplifies onboarding for new writers; they just run a command to get the entire environment ready, eliminating 'it works on my machine' issues.",
+    goodVocab: ["Dependency Locking", "Deterministic Build", "Onboarding", "Version Parity"]
+  },
+  {
+    id: 'loc-1',
+    category: 'Localization',
+    question: "How do you handle translations and localization within your documentation process?",
+    tips: ["Automated translation workflows.", "Siemens Translation API.", "Translation Memory."],
+    sampleAnswer: "Translations are integrated into our pipeline via the Siemens Translation Services API. Finalized Markdown files are sent for translation and returned automatically. We use Translation Memory (TM) to ensure consistency across versions and reduce costs. In Fluid Topics, metadata identifies the language, ensuring users see the correct version. We also use Passolo for UI text, minimizing manual handoffs and speeding up global releases.",
+    goodVocab: ["Translation API", "Translation Memory", "Passolo", "Global Delivery"]
+  },
+  {
+    id: 'agile-devops',
+    category: 'Agile',
+    question: "How do you align documentation with agile or DevOps development cycles?",
+    tips: ["Docs-as-code integration.", "Sprint participation.", "Real-time updates."],
+    sampleAnswer: "I integrate documentation tasks into the same sprint as feature development using GitLab issues and MRs. Because our docs are version-controlled alongside the code, we can update and release them continuously via the CI/CD pipeline. The docs-as-code model allows for early feedback through automated builds and previews, ensuring that documentation evolves in real-time with the software and eliminates release-day backlogs.",
+    goodVocab: ["Sprint Alignment", "Continuous Release", "Feedback Loops", "Backlog Elimination"]
+  },
+  {
+    id: 'lead-multi',
+    category: 'Leadership',
+    question: "How do you manage multiple documentation projects or product lines efficiently?",
+    tips: ["Standardized templates.", "Modular strategy.", "Centralized asset management."],
+    sampleAnswer: "For multi-product lines, I use a modular strategy combined with GitLab project templates. Each project has a standardized structure and CI/CD pipeline. Shared components like style rules and assets are managed centrally for consistency. I also leverage Fluid Topics to publish multiple manuals under one brand portal, reducing duplication while allowing writers to collaborate independently across different products.",
+    goodVocab: ["Modular Strategy", "Scalable Structure", "Centralized Assets", "Multi-Product Management"]
+  },
+  {
+    id: 'tw-quality',
+    category: 'Tech Writing',
+    question: "How do you ensure quality and accuracy in technical documentation?",
+    tips: ["Automation + Peer Review.", "SME validation.", "User feedback metrics."],
+    sampleAnswer: "Quality is maintained through a blend of automation and peer review. Automated linting enforces structural and linguistic rules, while SMEs validate technical accuracy through the Merge Request workflow. Our CI/CD pipeline generates previews for manual inspection before merging. Post-publication, I use analytics from Fluid Topics and user feedback to identify areas for improvement, ensuring the docs remain accurate and user-focused.",
+    goodVocab: ["Peer Review", "SME Validation", "Accountability", "User-focused"]
+  },
+  {
+    id: 'ai-resp',
+    category: 'AI & ML',
+    question: "How do you integrate AI tools in your writing process responsibly?",
+    tips: ["Microsoft/GitHub Copilot.", "Manual review for accuracy.", "Compliance with OSS guidelines."],
+    sampleAnswer: "We use Microsoft and GitHub Copilot within VS Code to automate repetitive tasks like grammar correction and initial drafting. However, all AI-generated content is manually reviewed for technical accuracy and tone compliance. I also use Python scripts to automate editorial tasks. Everything is done within a defined compliance framework (Siemens OSS guidelines) to ensure transparency and human oversight in final deliverables.",
+    goodVocab: ["Human Oversight", "Compliance Framework", "Transparency", "Manual Review"]
+  },
+  {
+    id: 'lead-metrics',
+    category: 'Leadership',
+    question: "How do you measure the effectiveness of your documentation?",
+    tips: ["Quantitative (Analytics) + Qualitative (Feedback).", "Internal metrics (Turnaround time)."],
+    sampleAnswer: "I use both quantitative and qualitative data. From Fluid Topics analytics, I track page hits, search terms, and feedback ratings. Internally, I monitor metrics like review turnaround time and doc coverage for new features. This combination of usage data and stakeholder feedback helps me refine the documentation structure, prioritize updates, and ensure it remains a valuable asset for the users.",
+    goodVocab: ["Usage Analytics", "Stakeholder Feedback", "KPIs", "Continuous Improvement"]
+  },
+  {
+    id: 'star-legacy',
+    category: 'STAR (Sr. TW)',
+    question: "How do you handle legacy documentation migration or modernization?",
+    tips: ["Content audit.", "Migration scripts (Word to MD).", "Incremental conversion."],
+    sampleAnswer: "I've led migrations from legacy formats like Word and XML to Markdown using custom Python scripts. The process involves auditing the content for decay, cleaning up formatting, and mapping metadata to our new structure. Once migrated, content is validated via our automated pipeline and published to Fluid Topics. This modernization significantly improves searchability and maintainability while bringing legacy docs into the automated CI/CD workflow.",
+    goodVocab: ["Migration Scripts", "Content Audit", "Modernization", "Incremental Conversion"]
+  },
+  {
+    id: 'beh-geo',
+    category: 'Behavioral',
+    question: "How do you collaborate with cross-functional teams across geographies?",
+    tips: ["GitLab transparency.", "Clear roles (RACI).", "Coordination with translation teams."],
+    sampleAnswer: "Our model relies on GitLab transparency—using MR discussions and issue trackers to keep everyone aligned across time zones. For multilingual projects, I coordinate with regional translation services and use tools like Passolo for UI strings. We use a RACI matrix to define clear roles (Developer, Reviewer, PO), which minimizes overlap and ensures accountability in a distributed team environment.",
+    goodVocab: ["Cross-functional", "Distributed Teams", "RACI Matrix", "Transparency"]
+  },
+  {
+    id: 'git-vc-releases',
+    category: 'Git & Version Control',
+    question: "What’s your approach to maintaining documentation for multiple versions or releases?",
+    tips: ["Branching (PI cycles).", "Release tags.", "Staging vs Prod environments."],
+    sampleAnswer: "We use a release-based branching strategy aligned with our Program Increments (PI). Each cycle starts with a new branch; feature updates are merged into a staging branch for review. Once approved, release tags trigger the final deployment to Fluid Topics. This provides complete visibility and allows us to maintain parallel documentation streams for different software versions with easy rollbacks if needed.",
+    goodVocab: ["PI Cycles", "Staging Branch", "Release Tags", "Parallel Streams"]
+  },
+  {
+    id: 'loc-friendly',
+    category: 'Localization',
+    question: "How do you ensure your writing is translation-friendly and globally consistent?",
+    tips: ["Simplified sentence structure.", "Controlled terminology.", "Translation Memory."],
+    sampleAnswer: "I apply 'translation-friendly' principles: using simple sentence structures, avoiding idioms, and strictly following controlled terminology. Our CI pipeline automates the handoff to translation services, where we use Translation Memory to ensure consistency. This standardized workflow ensures the same clarity across all supported languages while reducing post-editing effort and translation costs.",
+    goodVocab: ["Translation-friendly", "Controlled Terminology", "Post-editing", "Global Consistency"]
+  },
+  {
+    id: 'pers-growth',
+    category: 'Essentials',
+    question: "How do you stay current with evolving documentation technologies and best practices?",
+    tips: ["Internal training.", "Communities of practice.", "Experimenting with new tools."],
+    sampleAnswer: "I invest in continuous learning through internal 'Docs-as-Code' courses and technical writing communities. I also experiment with new tools like AI-assisted linters and MkDocs plugins to identify process enhancements. Staying updated allowed me to introduce Python-based validation scripts and AI-assisted style enforcement to our pipeline, keeping our workflow at the cutting edge of the industry.",
+    goodVocab: ["Continuous Learning", "Innovation", "Process Enhancement", "Community of Practice"]
+  },
+  {
+    id: 'ai-usage',
+    category: 'AI & ML',
+    question: "How do you use AI tools like Microsoft Copilot or GitHub Copilot in your writing process?",
+    tips: ["Initial drafts.", "Sentence restructuring.", "Automation scripts."],
+    sampleAnswer: "I use Copilot to accelerate both content creation and process automation. It helps generate initial drafts, suggest standard phrasing for parameters, and improve sentence structure. Beyond writing, I use it to generate Python scripts that automate editorial tasks like finding duplicate headings or fixing linter errors. I always verify the output to ensure it aligns with our style guide and technical accuracy.",
+    goodVocab: ["Draft Generation", "Refinement", "Scripting", "Efficiency"]
+  },
+  {
+    id: 'ai-gov',
+    category: 'AI & ML',
+    question: "How do you ensure AI-generated content complies with company and legal standards?",
+    tips: ["Approved tools only.", "No external data exposure.", "Human verification."],
+    sampleAnswer: "We follow strict OSS clearing guidelines, using only company-approved tools to ensure no data exposure. I ensure transparency by validating every AI suggestion for factual accuracy and tone before publication. We also document the use of AI tools in project metadata and apply disclaimers where necessary, maintaining content integrity through governed usage.",
+    goodVocab: ["OSS Guidelines", "Data Security", "Governance", "Transparency"]
+  },
+  {
+    id: 'ai-star-1',
+    category: 'AI & ML',
+    question: "What are some practical ways you’ve used AI to improve documentation quality or productivity?",
+    tips: ["Readability checks.", "Video scripts.", "Automated editorial scripts."],
+    sampleAnswer: "AI has been a significant multiplier. I've used GitHub Copilot to refactor complex steps and Microsoft Copilot for tone checks. I also use AI-driven tools like Synthesia to create explainer videos from scripts, which cut production time drastically. Collectively, these implementations reduced my authoring time by over 30% and improved the consistency of our reviews across all product releases.",
+    goodVocab: ["Multiplier", "Refactoring", "Content Discovery", "Productivity"]
+  },
+  {
+    id: 'ai-tone',
+    category: 'AI & ML',
+    question: "How do you balance AI-assisted writing with maintaining human tone and technical accuracy?",
+    tips: ["AI as an assistant, not a replacement.", "SME validation.", "Style guide alignment."],
+    sampleAnswer: "I treat AI as a collaborative assistant. While it can propose fluent text, it often lacks domain context. I validate every technical statement against engineering sources or SMEs to ensure accuracy. My focus is on refining the AI output to match our specific writing standards and voice, ensuring the final deliverable sounds authentically human and is technically precise.",
+    goodVocab: ["Collaborative Assistant", "Domain Context", "Technical Precision", "Voice Alignment"]
+  },
+  {
+    id: 'ai-data',
+    category: 'AI & ML',
+    question: "How do you use AI for automation or data-driven documentation improvements?",
+    tips: ["Python automation scripts.", "Text analytics for readability.", "Identifying high-impact improvements."],
+    sampleAnswer: "I've built Python scripts with AI assistance to automate repetitive tasks like fixing linter errors or updating abbreviation lists. I also use AI-driven text analytics to identify readability issues or complex sentences across large document sets. This data-driven approach allows me to target high-impact improvements efficiently rather than making manual, subjective changes.",
+    goodVocab: ["Python Scripts", "Text Analytics", "High-impact", "Automation"]
+  },
+  {
+    id: 'ai-proof',
+    category: 'AI & ML',
+    question: "How do you use AI to support review or proofreading processes?",
+    tips: ["Hybrid human-AI process.", "Passive voice detection.", "Summarizing changes."],
+    sampleAnswer: "I use a hybrid process: AI-based tools like Copilot highlight passive constructions or complex sentences during pre-review, while rule-based linters handle style and spelling. After a review, I use AI to summarize changes and ensure all reviewer comments are addressed. This significantly reduces proofreading time and improves linguistic precision across all contributors.",
+    goodVocab: ["Hybrid Process", "Linguistic Precision", "Proofreading", "Standardization"]
+  },
+  {
+    id: 'ai-chall',
+    category: 'AI & ML',
+    question: "What challenges have you faced when using AI for documentation, and how did you overcome them?",
+    tips: ["Contextual inaccuracy.", "Data security.", "Human oversight."],
+    sampleAnswer: "A major challenge is contextual inaccuracy—AI sometimes suggests technically incorrect content. I overcome this by providing the AI with our specific style and terminology libraries for reference. To ensure data security, we limit AI use to approved, internal environments. Always maintaining human oversight is the key to ensuring both compliance and reliability.",
+    goodVocab: ["Contextual Inaccuracy", "Data Security", "Reliability", "Reference Libraries"]
+  },
+  {
+    id: 'ai-future',
+    category: 'AI & ML',
+    question: "How do you see AI transforming technical writing in the next few years?",
+    tips: ["Mechanical vs. Creative aspects.", "Documentation Systems Designer.", "Self-healing pipelines."],
+    sampleAnswer: "AI will handle the mechanical aspects—style, validation, consistency—allowing writers to evolve into 'Documentation Systems Designers'. I foresee self-healing pipelines where AI automatically fixes lint errors and real-time feedback loops where AI suggests new topics based on user analytics. The focus will shift from simple text creation to managing automation and cross-platform content intelligence.",
+    goodVocab: ["Systems Designer", "Self-healing Pipelines", "Content Intelligence", "Transformation"]
+  },
+  {
+    id: 'ai-quality-int',
+    category: 'AI & ML',
+    question: "How do you integrate AI feedback with continuous documentation improvement?",
+    tips: ["Feedback loops (Analytics + AI).", "Targeted rewrites."],
+    sampleAnswer: "I combine AI insights with real user data. For example, if AI flags a sentence as complex and Fluid Topics analytics show users dropping off that page, that's a clear signal for a rewrite. This creates a powerful continuous improvement cycle where AI helps identify the 'what' and 'how' of an improvement based on how users are actually consuming the content.",
+    goodVocab: ["Continuous Improvement", "Feedback Loop", "User-centric", "Targeted Rewrite"]
+  },
+  {
+    id: 'ai-mentor',
+    category: 'Leadership',
+    question: "How do you train or guide other writers in using AI tools effectively and responsibly?",
+    tips: ["Prompt engineering.", "Compliance training.", "Mentorship."],
+    sampleAnswer: "I conduct internal sessions on effective prompting, responsible AI usage, and Siemens' privacy policies. I share 'good vs poor' examples of AI-assisted outputs to show where human intervention adds the most value. This mentorship ensures the team leverages AI's speed while preserving technical accuracy and maintaining a governed, compliant workflow.",
+    goodVocab: ["Prompt Engineering", "Responsible Usage", "Compliance", "Mentorship"]
+  },
+  {
+    id: 'auto-builds',
+    category: 'Automation & CI/CD',
+    question: "How have you automated documentation builds and publishing?",
+    tips: ["GitLab CI/CD.", "API-based publishing.", "MkDocs integration."],
+    sampleAnswer: "I implemented a fully automated pipeline in GitLab. Every commit triggers a build that runs linters, spell-checkers, and link validators. If successful, the doc is built via MkDocs and deployed directly to Fluid Topics using its API. This eliminated manual uploads, reduced publishing time to minutes, and ensured only validated content reaches production.",
+    goodVocab: ["API Publishing", "Build Automation", "Validation", "Delivery Speed"]
+  },
+  {
+    id: 'auto-style',
+    category: 'Automation & CI/CD',
+    question: "What was your approach to automating style and quality checks?",
+    tips: ["Vale integration.", "Rule-based automation.", "Pre-merge feedback."],
+    sampleAnswer: "I developed a rule-based system using Vale integrated into GitLab CI. It applies Siemens' style guide at the commit level, flagging passive voice or unclear phrasing before a merge. Combined with Markdownlint for structure and CSpell for spelling, this system drastically reduced manual editorial work and ensured a consistent voice across all repositories and writers.",
+    goodVocab: ["Style Automation", "Rule-based", "Pre-merge", "Consistency"]
+  },
+  {
+    id: 'auto-loc',
+    category: 'Automation & CI/CD',
+    question: "How did you automate translation and localization in your documentation process?",
+    tips: ["Translation API.", "Metadata management.", "Reduced turnaround."],
+    sampleAnswer: "Our process is automated via the Siemens Translation Services API. When the source is finalized, the pipeline triggers a job that sends the file for translation and retrieves it. Metadata in Fluid Topics then categorizes the results for the user. This automation eliminated manual handoffs and significantly reduced our translation turnaround time while maintaining consistency through Translation Memory.",
+    goodVocab: ["Translation API", "Metadata", "Localization Automation", "Turnaround Time"]
+  },
+  {
+    id: 'auto-scripts',
+    category: 'Tooling',
+    question: "How did you use Python scripting to support documentation automation?",
+    tips: ["Editorial automation.", "Metadata validation.", "Repetitive tasks."],
+    sampleAnswer: "I created Python scripts for repetitive tasks like Word-to-Markdown conversion, redundant line-break cleaning, and metadata validation. For example, one script checks for required Fluid Topics tags before publishing, and another generates changelogs from Git commits. These are integrated into the CI/CD pipeline, ensuring validation happens automatically on every build.",
+    goodVocab: ["Python Scripts", "Metadata Validation", "Editorial Automation", "Task Reduction"]
+  },
+  {
+    id: 'auto-fail',
+    category: 'Automation & CI/CD',
+    question: "How do you handle automation failures or pipeline errors efficiently?",
+    tips: ["Error logging.", "Root cause analysis.", "Template refinement."],
+    sampleAnswer: "Each pipeline stage has detailed logging. If a check fails, the pipeline stops and provides immediate feedback in the GitLab Merge Request. I review the logs, identify the root cause—like syntax errors or dependency conflicts—and refine our Poetry lock files or rule sets. I also create reusable templates to prevent recurring errors in other projects.",
+    goodVocab: ["Error Logging", "Root Cause", "Version Stability", "Template Refinement"]
+  },
+  {
+    id: 'auto-deploy',
+    category: 'Automation & CI/CD',
+    question: "How did you automate the deployment of documentation to multiple environments?",
+    tips: ["Environment-based jobs.", "Staging vs Prod."],
+    sampleAnswer: "We use environment-based jobs that detect the target branch and deploy via API. This allows us to keep a staging environment updated for internal preview while keeping production stable until a final release tag is approved. This automated separation makes our release process predictable, audit-ready, and much faster than manual uploads.",
+    goodVocab: ["Environment-based", "API Deployment", "Predictability", "Release Control"]
+  },
+  {
+    id: 'auto-impact',
+    category: 'Automation & CI/CD',
+    question: "How did automation improve efficiency in your documentation lifecycle?",
+    tips: ["Timeline reduction.", "Accurate alignment.", "Stakeholder visibility."],
+    sampleAnswer: "Automation reduced manual work across the board—from builds to linting to deployment. Overall, we saw a 40–50% reduction in delivery timelines. It ensured that our documentation release cycles aligned perfectly with product sprints and gave stakeholders continuous, real-time visibility into the readiness of our content.",
+    goodVocab: ["Timeline Reduction", "Efficiency", "Alignment", "Visibility"]
+  },
+  {
+    id: 'auto-links',
+    category: 'Automation & CI/CD',
+    question: "How did you automate the validation of hyperlinks and references?",
+    tips: ["Link-checker plugins.", "Strict build mode.", "Anchor validation."],
+    sampleAnswer: "We use MkDocs link-checker plugins in 'strict' mode, which fails the build if any broken links are found. I also built a Python script to validate metadata anchors for Fluid Topics cross-references. These automated checks have nearly eliminated broken links in our production releases, ensuring a seamless experience for the end user.",
+    goodVocab: ["Link Validation", "Strict Mode", "Reference Integrity", "Seamless Experience"]
+  },
+  {
+    id: 'tool-poetry-auto',
+    category: 'Tooling',
+    question: "How do you manage dependency automation with Python Poetry?",
+    tips: ["Deterministic builds.", "Update pipelines.", "Environment stability."],
+    sampleAnswer: "Poetry manages all our Python-based tools, locking versions in a pyproject.toml file. This ensures every CI/CD run is deterministic. I use a dedicated 'update-deps' pipeline to safely test and upgrade packages before merging them into the main line, preventing version drift and ensuring the environment remains stable across all stages.",
+    goodVocab: ["Deterministic", "Dependency Locking", "Version Drift", "Stability"]
+  },
+  {
+    id: 'auto-future',
+    category: 'Automation & CI/CD',
+    question: "How do you see automation evolving in documentation workflows?",
+    tips: ["Event-driven workflows.", "Self-healing pipelines.", "AI-assisted rewriting."],
+    sampleAnswer: "Automation is moving toward self-healing pipelines where AI can not only detect but also fix lint errors and rewrite complex sentences. I foresee event-driven workflows where documentation updates trigger automatically as code changes. The goal is a fully intelligent, self-regulating ecosystem that provides real-time, context-aware documentation with zero manual intervention.",
+    goodVocab: ["Self-healing", "Event-driven", "Intelligent Ecosystem", "Real-time"]
+  },
+  {
+    id: 'lead-1',
+    category: 'Leadership',
+    question: "How do you provide leadership in a documentation team?",
+    tips: ["Establish standards.", "Empower with tools.", "Docs clinics."],
+    sampleAnswer: "I lead by establishing clear standards and automated systems that make quality a team-wide habit. I introduce tools like Vale and CI/CD pipelines so writers can self-correct early. I also host 'Docs Clinics' to share best practices and review real examples. This fosters a culture of ownership where everyone is aligned on clarity, consistency, and automation.",
+    goodVocab: ["Standards", "Empowerment", "Culture of Ownership", "Alignment"]
+  },
+  {
+    id: 'lead-mentor',
+    category: 'Leadership',
+    question: "How do you mentor or train junior writers?",
+    tips: ["Hands-on onboarding.", "Guided reviews.", "Learning by doing."],
+    sampleAnswer: "I use a hands-on onboarding plan covering GitLab, MkDocs, and Fluid Topics. I assign independent tasks early, paired with guided reviews to build confidence. I encourage the use of AI tools like Copilot within a safe framework to learn our tone faster. My philosophy is 'learning by doing'—guiding them through continuous feedback until they become self-sufficient contributors.",
+    goodVocab: ["Onboarding", "Mentorship", "Self-sufficient", "Feedback"]
+  },
+  {
+    id: 'lead-influence',
+    category: 'Leadership',
+    question: "How do you influence cross-functional teams when documentation is not prioritized?",
+    tips: ["Metric-based advocacy.", "Jira integration.", "Demonstrate ROI."],
+    sampleAnswer: "I present documentation as a core product deliverable. By showing metrics like support ticket reduction and build stability, I make the impact measurable. I also integrate doc tasks directly into sprint boards to ensure visibility. Presenting documentation as a key factor in user satisfaction helps secure prioritization from engineering and product management.",
+    goodVocab: ["Advocacy", "Measurable Impact", "Accountability", "ROI"]
+  },
+  {
+    id: 'beh-conflicts',
+    category: 'Behavioral',
+    question: "How do you handle conflicts or differing opinions in the documentation process?",
+    tips: ["Transparency and data.", "User perspective.", "Collaborative discussions."],
+    sampleAnswer: "I use data and transparency to resolve conflicts. When opinions differ on tone or tools, I refer to our style guide or CI/CD quality reports. I encourage open discussions in Merge Requests, focusing on the end-user's experience rather than personal preference. My goal is to turn disagreements into collaborative opportunities for process improvement.",
+    goodVocab: ["Conflict Resolution", "Data-driven", "Transparency", "Collaboration"]
+  },
+  {
+    id: 'lead-improvement',
+    category: 'Leadership',
+    question: "How do you lead documentation process improvements across teams?",
+    tips: ["Identify bottlenecks.", "Standardize repositories.", "Scalable automation."],
+    sampleAnswer: "I identify bottlenecks like manual publishing and automate them using GitLab CI/CD and Python scripts. I also standardize repository structures and metadata templates across product lines. This ensures scalability and reduces dependency on individuals, making our documentation process more robust and predictable across the entire organization.",
+    goodVocab: ["Bottleneck Removal", "Standardization", "Scalability", "Robust Process"]
+  },
+  {
+    id: 'lead-innov',
+    category: 'Leadership',
+    question: "How do you drive innovation in documentation?",
+    tips: ["Agile mindset.", "Piloting ideas.", "Emerging tech (AI/Analytics)."],
+    sampleAnswer: "I drive innovation by piloting new ideas, like AI-assisted authoring or content analytics, in small projects before scaling them. I foster an agile mindset where the team is encouraged to experiment with emerging tech to improve automation or user feedback loops. This ensures our innovation always aligns with business goals and quality standards.",
+    goodVocab: ["Innovation", "Agile Mindset", "Piloting", "Emerging Tech"]
+  },
+  {
+    id: 'beh-stakeholders',
+    category: 'Behavioral',
+    question: "How do you ensure alignment across multiple stakeholders?",
+    tips: ["Visibility framework.", "SME validation.", "Release standups."],
+    sampleAnswer: "I create a shared visibility framework using GitLab Merge Requests and staging previews. SMEs validate accuracy, POs review alignment, and I handle quality compliance. I also host brief release standups to align timelines. This coordination ensures documentation evolves alongside design, testing, and release cycles rather than being isolated.",
+    goodVocab: ["Stakeholder Alignment", "Visibility", "Coordination", "Integration"]
+  },
+  {
+    id: 'lead-strategy',
+    category: 'Leadership',
+    question: "How do you manage documentation strategy during large-scale releases or PI cycles?",
+    tips: ["Plan deliverables with milestones.", "Branching strategy.", "Focus on release readiness."],
+    sampleAnswer: "During PI cycles, I plan doc deliverables with development milestones. I ensure features are documented within their sprint and use a controlled branching strategy for delivery. I lead release reviews and coordinate with QA for accuracy. Automation handles deployment, allowing me to focus on high-level consistency and release notes across all applications.",
+    goodVocab: ["PI Planning", "Milestones", "Release Readiness", "Traceability"]
+  },
+  {
+    id: 'lead-motivate',
+    category: 'Leadership',
+    question: "How do you motivate your team and maintain quality under tight deadlines?",
+    tips: ["Clarity and empowerment.", "Focus on automation.", "Share user impact."],
+    sampleAnswer: "I prioritize automation during tight deadlines so the team can focus on clarity rather than mechanical checks. I also share user analytics to show them why their work matters. Recognizing contributors and showing the tangible impact of their documentation on user success keeps morale high and quality consistent, even under pressure.",
+    goodVocab: ["Motivation", "Empowerment", "User Impact", "Morale"]
+  },
+  {
+    id: 'lead-impact',
+    category: 'Leadership',
+    question: "How do you measure and demonstrate the impact of your leadership?",
+    tips: ["Quantifiable results.", "ROI reporting.", "Quarterly retrospectives."],
+    sampleAnswer: "I track quantifiable results: reduction in publishing time, decrease in rework rates, and increased release readiness. I consolidate these into quarterly reports to demonstrate ROI from process improvements. Showing these tangible outcomes reinforces the value of leadership in driving both efficiency and quality in the documentation lifecycle.",
+    goodVocab: ["Quantifiable Impact", "ROI", "Tangible Outcomes", "Retrospectives"]
+  },
+  {
+    id: 'beh-pressure',
+    category: 'Behavioral',
+    question: "How do you deal with pressure or stressful situations?",
+    tips: ["Break tasks down.", "Prioritize by impact.", "Fact-based focus."],
+    sampleAnswer: "I handle pressure by breaking tasks into manageable steps and prioritizing them by impact. I rely on structured planning and automated checks to avoid last-minute surprises. By focusing on facts and maintaining transparent communication with stakeholders, I can stay calm and adjust my strategy effectively when situations shift.",
+    goodVocab: ["Stress Management", "Prioritization", "Fact-based", "Composure"]
+  },
+  {
+    id: 'star-hardest',
+    category: 'STAR (Sr. TW)',
+    question: "What is the hardest problem you've ever tackled?",
+    tips: ["Situation: Massive legacy mess.", "Action: Modernization strategy.", "Result: Tangible improvement."],
+    sampleAnswer: "SITUATION: Modernizing a massive collection of inconsistent legacy Word/PDF manuals into a unified 'Docs-as-Code' ecosystem. TASK: Clean up, migrate, and automate the pipeline. ACTION: I built custom migration scripts, created reusable templates, and integrated a CI/CD validation pipeline. RESULT: This improved consistency, searchability, and reduced our publishing time from hours to minutes.",
+    goodVocab: ["Modernization", "Legacy Migration", "Complexity", "Systemic Fix"]
+  },
+  {
+    id: 'ess-apart',
+    category: 'Essentials',
+    question: "What sets you apart from other candidates?",
+    tips: ["Writing + Technical proficiency.", "Systems thinking.", "Workflow design."],
+    sampleAnswer: "What sets me apart is that I don't just write documentation—I design the workflows that make documentation scalable. My combination of technical proficiency in CI/CD, MkDocs, and AI-assisted validation with strong writing allows me to deliver content that is not only high-quality but also maintainable and integrated into the software lifecycle.",
+    goodVocab: ["Systems Thinking", "Workflow Design", "Integrated", "Scalable"]
+  },
+  {
+    id: 'beh-responsibilities',
+    category: 'Behavioral',
+    question: "Describe a situation where you had to handle multiple responsibilities. How did you manage your time?",
+    tips: ["Prioritize by release impact.", "Use Kanban/Agile tools.", "Automation efficiency."],
+    sampleAnswer: "In large release cycles, I manage multiple product updates by prioritizing based on release impact and SME availability. I use Kanban boards and structured templates to stay organized. Leveraging automated linting and previews saves me time on mechanical checks, allowing me to focus on accurately documenting new features across different lines simultaneously.",
+    goodVocab: ["Multitasking", "Prioritization", "Time Management", "Kanban"]
+  },
+  {
+    id: 'star-deadline',
+    category: 'STAR (Sr. TW)',
+    question: "Tell me a time when you couldn't meet a deadline and how you handled it?",
+    tips: ["Early communication.", "Stakeholder alignment.", "Realistic revised timeline."],
+    sampleAnswer: "SITUATION: A feature changed late in the sprint, affecting the doc scope. TASK: Update the docs without compromising accuracy. ACTION: I informed stakeholders early, aligned with devs for details, and proposed a realistic revised timeline. RESULT: I delivered a high-quality update shortly after by focusing on the most critical sections first and iterating later.",
+    goodVocab: ["Stakeholder Alignment", "Proactive Communication", "Realistic Planning", "Iterative Delivery"]
+  },
+  {
+    id: 'beh-difficult',
+    category: 'Behavioral',
+    question: "Share an example of working with someone difficult. How did you handle it?",
+    tips: ["Friction reduction.", "Draft-first approach.", "Respect for their time."],
+    sampleAnswer: "I once worked with an SME who was too busy to respond to queries. Instead of waiting, I drafted documentation based on technical specs and my own testing. When I presented the structured draft, the SME gave immediate, accurate feedback because the 'starting friction' was removed. This proactive approach turned a difficult collaboration into an efficient one.",
+    goodVocab: ["Friction Reduction", "Proactive", "Collaboration", "Draft-first"]
+  },
+  {
+    id: 'hr-leaving',
+    category: 'HR',
+    question: "Why did you want to leave your current position?",
+    tips: ["Growth focused.", "Expanding impact.", "New challenges."],
+    sampleAnswer: "I'm looking for a role where I can expand my impact in documentation systems design, automation, and cross-team enablement. I want to contribute to an organization that deeply values modern 'Docs-as-Code' practices and where I can help build the processes that scale high-quality content across the entire product line.",
+    goodVocab: ["Impact", "Enablement", "Systems Design", "Scale"]
+  },
+  {
+    id: 'proj-docscanner',
+    category: 'Projects',
+    question: "Tell me about DocScanner.",
+    tips: ["Sentence-by-sentence analysis.", "Rule-based + AI hybrid.", "Privacy focused (Local)."],
+    sampleAnswer: "DocScanner is a document-analysis app I built using Flask. It reviews technical content sentence by sentence using over 39 writing rules and a hybrid AI system (Ollama). It detects issues like passive voice and inconsistent terminology. It uses a vector database to provide style-matched rewrites locally via Docker, ensuring documents never leave the machine. It's a tool for automating quality and consistency in technical docs.",
+    goodVocab: ["Flask", "Hybrid AI", "Vector Database", "Docker", "Privacy-focused"]
   }
 ];
 

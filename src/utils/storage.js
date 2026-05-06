@@ -342,5 +342,7 @@ export const getAppSettings = async () => {
 };
 
 export const saveAppSettings = async (settings) => {
-  await AsyncStorage.setItem(KEYS.SETTINGS, JSON.stringify(settings));
+  const current = await getAppSettings();
+  const next = { ...current, ...settings };
+  await AsyncStorage.setItem(KEYS.SETTINGS, JSON.stringify(next));
 };

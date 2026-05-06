@@ -218,9 +218,6 @@ export default function VoiceLabScreen({ profile }) {
           
           <View style={styles.row}>
             <LabCard emoji="👅" title="Twisters" onPress={() => loadExercises('tongue_twisters')} />
-          </View>
-          <View style={styles.row}>
-            <LabCard emoji="🎭" title="Roleplay" onPress={() => startSim('Job Interview')} />
             <LabCard emoji="💡" title="Concepts" onPress={() => loadExercises('concepts')} />
           </View>
           <View style={styles.row}>

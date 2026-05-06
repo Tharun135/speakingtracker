@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, Alert, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, Alert, ScrollView, Platform, ActivityIndicator } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AnalogClockPicker from '../components/AnalogClockPicker';
 import * as Notifications from 'expo-notifications';
@@ -12,6 +12,8 @@ export default function SettingsScreen({ profile }) {
   const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [voiceGender, setVoiceGender] = useState('feminine');
   const [storageSize, setStorageSize] = useState('0 MB');
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -25,6 +27,7 @@ export default function SettingsScreen({ profile }) {
     setVoiceGender(settings.voiceGender || 'feminine');
     const { status } = await Notifications.getPermissionsAsync();
     setRemindersEnabled(status === 'granted');
+    setHasUnsavedChanges(false);
   };
 
   const calculateStorage = async () => {
@@ -41,16 +44,31 @@ export default function SettingsScreen({ profile }) {
     }
   };
 
-  const handleTimeChange = async (event, selectedDate) => {
-    setShowPicker(false);
-    if (!selectedDate) return;
-    setTime(selectedDate);
-    await saveReminderTime(selectedDate);
-    await scheduleNotification(selectedDate);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // 1. Save Voice Settings
+      await saveAppSettings({ voiceGender });
+
+      // 2. Save Reminder Settings
+      if (remindersEnabled) {
+        await saveReminderTime(time);
+        await scheduleNotification(time);
+      } else {
+        await Notifications.cancelAllScheduledNotificationsAsync();
+      }
+
+      setHasUnsavedChanges(false);
+      Alert.alert("Success", "Settings saved successfully!");
+    } catch (e) {
+      console.error(e);
+      Alert.alert("Error", "Failed to save settings.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const scheduleNotification = async (targetDate) => {
-    if (!remindersEnabled) return;
     try {
       await Notifications.cancelAllScheduledNotificationsAsync();
       await Notifications.scheduleNotificationAsync({
@@ -67,20 +85,25 @@ export default function SettingsScreen({ profile }) {
           channelId: 'default'
         },
       });
-      Alert.alert("Reminder Set!", `You'll be notified daily at ${targetDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`);
     } catch (e) {
       console.error('Notification Error:', e);
-      Alert.alert('Error', 'Could not schedule reminder. Please check permission settings.');
     }
   };
 
-  const toggleVoice = async (gender) => {
+  const handleTimeChange = (event, selectedDate) => {
+    setShowPicker(false);
+    if (!selectedDate) return;
+    setTime(selectedDate);
+    setHasUnsavedChanges(true);
+  };
+
+  const toggleVoice = (gender) => {
     setVoiceGender(gender);
-    await saveAppSettings({ voiceGender: gender });
+    setHasUnsavedChanges(true);
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 150 }}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Settings</Text>
         <Text style={styles.headerSub}>Customize your AI Language Coach</Text>
@@ -98,11 +121,14 @@ export default function SettingsScreen({ profile }) {
             onValueChange={async (val) => {
               if (val) {
                 const { status } = await Notifications.requestPermissionsAsync();
-                setRemindersEnabled(status === 'granted');
-              } else {
-                setRemindersEnabled(false);
-                await Notifications.cancelAllScheduledNotificationsAsync();
+                if (status !== 'granted') {
+                  Alert.alert("Permission Required", "Please enable notifications in your system settings to receive reminders.");
+                  setRemindersEnabled(false);
+                  return;
+                }
               }
+              setRemindersEnabled(val);
+              setHasUnsavedChanges(true);
             }} 
             trackColor={{ false: '#2A2A4A', true: '#6C63FF' }}
             thumbColor={'#fff'}
@@ -155,6 +181,22 @@ export default function SettingsScreen({ profile }) {
         <Text style={styles.subNote}>Recordings older than 30 days are automatically removed to save space.</Text>
       </View>
 
+      {hasUnsavedChanges && (
+        <View style={styles.saveContainer}>
+          <TouchableOpacity 
+            style={[styles.saveBtn, isSaving && { opacity: 0.8 }]} 
+            onPress={handleSave}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Text style={styles.saveBtnText}>Save Changes</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
+
       {showPicker && (
         Platform.OS === 'web' ? (
           <AnalogClockPicker
@@ -172,7 +214,6 @@ export default function SettingsScreen({ profile }) {
           />
         )
       )}
-      <View style={{ height: 40 }} />
     </ScrollView>
   );
 }
@@ -201,4 +242,19 @@ const styles = StyleSheet.create({
   statusBadge: { backgroundColor: '#EAF3DE11', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: '#97C45933' },
   statusText: { color: '#97C459', fontSize: 10, fontWeight: '900' },
   subNote: { color: '#555588', fontSize: 11, lineHeight: 16 },
+
+  saveContainer: { position: 'absolute', bottom: 100, left: 0, right: 0, alignItems: 'center', paddingHorizontal: 20 },
+  saveBtn: { 
+    backgroundColor: '#6C63FF', 
+    width: '100%', 
+    paddingVertical: 18, 
+    borderRadius: 20, 
+    alignItems: 'center',
+    shadowColor: '#6C63FF',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 10
+  },
+  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '900' },
 });
